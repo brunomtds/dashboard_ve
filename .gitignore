@@ -1,0 +1,43 @@
+# Python/Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.sqlite3
+*.log
+
+# Virtual Environment
+venv/
+env/
+.venv/
+ENV/
+
+# Environment Variables
+.env
+
+# Django Static and Media Files
+staticfiles/
+media/
+
+# Database
+*.sql
+*.sqlite
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+
+# Django Migrations (optional, depending on your workflow)
+# migrations/  # Uncomment if you don't want to commit migrations
+
+# Other
+*.bak
+*.swp
+*~

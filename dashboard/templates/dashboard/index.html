@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UBS Consulta</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Dashboard UBS</h1>
+            <a href="{% url 'logout' %}" class="text-sm hover:underline">Sair</a>
+        </div>
+    </header>
+    <main class="container mx-auto p-6">
+        <h2 class="text-2xl font-semibold mb-6">Bem-vindo, {{ user.username }}!</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Card para Consulta de CEP -->
+            <a href="{% url 'ubs_consulta:consulta_cep' %}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition">
+                <h3 class="text-lg font-semibold mb-2">Consulta de UBS por CEP</h3>
+                <p class="text-gray-600">Digite um CEP para encontrar UBSs próximas.</p>
+            </a>
+            <!-- Placeholder 1 -->
+            <div class="bg-white p-6 rounded-lg shadow-md opacity-50">
+                <h3 class="text-lg font-semibold mb-2">Funcionalidade Futura</h3>
+                <p class="text-gray-600">Em breve!</p>
+            </div>
+            <!-- Placeholder 2 -->
+            <div class="bg-white p-6 rounded-lg shadow-md opacity-50">
+                <h3 class="text-lg font-semibold mb-2">Funcionalidade Futura</h3>
+                <p class="text-gray-600">Em breve!</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
