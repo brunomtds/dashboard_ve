@@ -50,6 +50,8 @@ def consulta_cep_view(request):
                     cod_ubs_list = cursor.fetchall()
 
                     ubs_list = []
+                    tem_ubs_real = False
+
                     for cod_ubs in cod_ubs_list:
                         cod = cod_ubs[0]
                         query_ubs = """
@@ -62,22 +64,37 @@ def consulta_cep_view(request):
 
                         if ubs_info:
                             nome, logradouro_ubs, numero, bairro_ubs, telefone = ubs_info
+
+                            if nome == "SEM UNIDADE DESIGNADA":
+                                continue  # pula, trata depois
+                            else:
+                                tem_ubs_real = True
+
                             if telefone:
                                 telefone = str(int(float(telefone)))
                                 tel_format = f"({telefone[:2]}){telefone[2:6]}-{telefone[6:]}"
                             else:
                                 tel_format = "N/A"
 
-                            if nome == "SEM UNIDADE DESIGNADA":
-                                ubs_list.append({"nome": "Nenhuma UBS designada", "endereco": "", "telefone": ""})
-                            else:
-                                ubs_list.append({
-                                    "nome": nome,
-                                    "endereco": f"{logradouro_ubs}, {numero} - {bairro_ubs}",
-                                    "telefone": tel_format
-                                })
+                            ubs_list.append({
+                                "nome": nome,
+                                "endereco": f"{logradouro_ubs}, {numero} - {bairro_ubs}",
+                                "telefone": tel_format
+                            })
                         else:
-                            ubs_list.append({"nome": f"UBS código {cod} não encontrada", "endereco": "", "telefone": ""})
+                            ubs_list.append({
+                                "nome": f"UBS código {cod} não encontrada",
+                                "endereco": "",
+                                "telefone": ""
+                            })
+
+                    # Se não tiver UBS real, adiciona 'Nenhuma UBS designada'
+                    if not tem_ubs_real:
+                        ubs_list.append({
+                            "nome": "SEM UNIDADE DESIGNADA",
+                            "endereco": "INFORME O RESPONSÁVEL PELO ENDEREÇAMENTO",
+                            "telefone": ""
+                        })
 
                     logradouros.append({
                         "nome": logradouro,
