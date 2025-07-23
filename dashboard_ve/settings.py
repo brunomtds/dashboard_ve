@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'dashboard',
     'ubs_consulta',
+    'busca_docs',
 ]
 
 MIDDLEWARE = [

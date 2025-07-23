@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Documentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <header class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold">Busca de Documentos</h1>
+            <a href="{% url 'dashboard:dashboard' %}" class="text-sm hover:underline">Dashboard</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6">
+        <!-- Formulário de Busca -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-800">Buscar Documentos</h2>
+                {% if user.is_staff %}
+                    <a 
+                        href="{% url 'busca_docs:adicionar_documento' %}"
+                        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transform transition hover:-translate-y-1"
+                    >
+                        ➕ Adicionar Documento
+                    </a>
+                {% endif %}
+            </div>
+            
+            <form method="GET" class="space-y-4">
+                <!-- Busca por texto -->
+                <div>
+                    <label for="q" class="block text-sm font-medium text-gray-700 mb-2">Busca por título ou descrição</label>
+                    <input 
+                        type="text" 
+                        id="q" 
+                        name="q" 
+                        value="{{ query }}"
+                        placeholder="Digite palavras-chave para buscar..."
+                        class="mt-1 block w-full max-w-md p-2 border rounded-md"
+                    >
+                </div>
+
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Categoria -->
+                    <div>
+                        <label for="categoria" class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+                        <select 
+                            id="categoria" 
+                            name="categoria"
+                            class="mt-1 block w-full p-2 border rounded-md"
+                        >
+                            <option value="">Todas as categorias</option>
+                            {% for categoria in todas_categorias %}
+                                <option value="{{ categoria.id }}" {% if categoria.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>
+                                    {{ categoria.nome }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Tags -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                        <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-gray-50">
+                            {% for tag in todas_tags %}
+                                <label class="flex items-center space-x-2 py-1">
+                                    <input 
+                                        type="checkbox" 
+                                        name="tags" 
+                                        value="{{ tag.id }}"
+                                        {% if tag in tags_selecionadas %}checked{% endif %}
+                                        class="rounded border-gray-300"
+                                    >
+                                    <span class="text-sm text-gray-700">{{ tag.nome }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="flex space-x-3">
+                    <button 
+                        type="submit"
+                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+                    >
+                        🔍 Buscar
+                    </button>
+                    <a 
+                        href="{% url 'busca_docs:busca_documentos' %}"
+                        class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+                    >
+                        🔄 Limpar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Resultados -->
+        {% if mensagem_erro %}
+            <p class="text-red-500 text-sm mb-4">{{ mensagem_erro }}</p>
+        {% endif %}
+        
+        <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% if filtros_aplicados %}
+                <!-- Resultados da busca -->
+                {% if page_obj.object_list %}
+                    {% for documento in page_obj %}
+                        <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
+                            <h3 class="text-lg font-semibold mb-2">
+                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600">
+                                    {{ documento.titulo }}
+                                </a>
+                            </h3>
+                            
+                            {% if documento.categoria %}
+                                <p class="text-gray-600 mb-2">📁 {{ documento.categoria.nome }}</p>
+                            {% endif %}
+
+                            {% if documento.descricao %}
+                                <p class="text-gray-600 mb-4">{{ documento.descricao|truncatewords:15 }}</p>
+                            {% endif %}
+
+                            {% if documento.tags.all %}
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    {% for tag in documento.tags.all %}
+                                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
+                                            {{ tag.nome }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if documento.data_publicacao %}
+                                <p class="text-xs text-gray-500 mb-3">📅 {{ documento.data_publicacao|date:"d/m/Y" }}</p>
+                            {% endif %}
+
+                            <div class="flex justify-between items-center">
+                                <a 
+                                    href="{% url 'busca_docs:detalhes_documento' documento.id %}"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                    Ver detalhes →
+                                </a>
+                                {% if documento.arquivo %}
+                                    <a 
+                                        href="{{ documento.arquivo.url }}" 
+                                        target="_blank"
+                                        class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200"
+                                    >
+                                        📄 Download
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl mb-4">📭</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum documento encontrado</h3>
+                        <p class="text-gray-600">Tente ajustar os filtros de busca ou usar palavras-chave diferentes.</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <!-- Exibição agrupada por categoria -->
+                {% for categoria, documentos in documentos_agrupados.items %}
+                    {% for documento in documentos %}
+                        <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
+                            <h3 class="text-lg font-semibold mb-2">
+                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600">
+                                    {{ documento.titulo }}
+                                </a>
+                            </h3>
+                            
+                            {% if documento.categoria %}
+                                <p class="text-gray-600 mb-2">📁 {{ documento.categoria.nome }}</p>
+                            {% else %}
+                                <p class="text-gray-600 mb-2">📂 Sem Categoria</p>
+                            {% endif %}
+
+                            {% if documento.descricao %}
+                                <p class="text-gray-600 mb-4">{{ documento.descricao|truncatewords:15 }}</p>
+                            {% endif %}
+
+                            {% if documento.tags.all %}
+                                <div class="flex flex-wrap gap-1 mb-3">
+                                    {% for tag in documento.tags.all %}
+                                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
+                                            {{ tag.nome }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            {% if documento.data_publicacao %}
+                                <p class="text-xs text-gray-500 mb-3">📅 {{ documento.data_publicacao|date:"d/m/Y" }}</p>
+                            {% endif %}
+
+                            <div class="flex justify-between items-center">
+                                <a 
+                                    href="{% url 'busca_docs:detalhes_documento' documento.id %}"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                    Ver detalhes →
+                                </a>
+                                {% if documento.arquivo %}
+                                    <a 
+                                        href="{{ documento.arquivo.url }}" 
+                                        target="_blank"
+                                        class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200"
+                                    >
+                                        📄 Download
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% empty %}
+                    <div class="col-span-full text-center py-12">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum documento cadastrado</h3>
+                        <p class="text-gray-600">O acervo ainda não possui documentos.</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                animation: {
+                    'fade-in': 'fadeIn 0.5s ease-out'
+                },
+                keyframes: {
+                    fadeIn: {
+                        '0%': { opacity: '0', transform: 'translateY(10px)' },
+                        '100%': { opacity: '1', transform: 'translateY(0)' }
+                    }
+                }
+            }
+        }
+    }
+</script>
+
