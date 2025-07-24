@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ documento.titulo }} - Detalhes do Documento{% endblock %}
+
+{% block header_title %}Detalhes do Documento{% endblock %}
+
+{% block header_links %}
+    <a href="{% url 'busca_docs:busca_documentos' %}" class="text-sm hover:underline">Voltar à Busca</a>
+    <a href="{% url 'dashboard:dashboard' %}" class="text-sm hover:underline">Dashboard</a>
+{% endblock %}
+
+{% block content %}
+    <!-- Card principal do documento (seu código original vai aqui) -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6 animate-fade-in">
+        <!-- ... todo o conteúdo de detalhes ... -->
+    </div>
+
+    <!-- Documentos relacionados (seu código original vai aqui) -->
+    {% if documento.categoria %}
+        <div class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+            <!-- ... conteúdo dos relacionados ... -->
+        </div>
+    {% endif %}
+{% endblock %}

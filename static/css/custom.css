@@ -1,0 +1,30 @@
+body {
+    /* Define a imagem de fundo */
+    background-image: url('../img/bg_jundiai.png');
+    
+    /* Garante que a imagem cubra toda a tela */
+    background-size: cover;
+    
+    /* Centraliza a imagem */
+    background-position: center center;
+    
+    /* Fixa a imagem para que ela não role com o conteúdo */
+    background-attachment: fixed;
+}
+
+/* Classe para o container de conteúdo com fundo branco translúcido */
+.content-wrapper {
+    background-color: rgba(255, 255, 255, 0.9); /* Branco com 90% de opacidade */
+    border-radius: 0.5rem; /* 8px, bordas arredondadas */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    padding: 1.5rem; /* 24px de espaçamento interno */
+    margin-top: 1.5rem; /* 24px de margem no topo */
+    margin-bottom: 1.5rem; /* 24px de margem no rodapé */
+}
+
+/* Para as páginas de login/logout, que não usam o container principal */
+.auth-card {
+    background-color: rgba(255, 255, 255, 0.95); /* Um pouco mais opaco para legibilidade */
+    backdrop-filter: blur(8px); /* Efeito de vidro fosco (opcional, mas muito bom) */
+    -webkit-backdrop-filter: blur(8px); /* Suporte para Safari */
+}

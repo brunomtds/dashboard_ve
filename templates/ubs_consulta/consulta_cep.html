@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Consulta de UBS por CEP{% endblock %}
+
+{% block extra_head %}
+    {# Carrega o script específico desta página no <head> #}
+    <script src="{% static 'ubs_consulta/js/consulta_cep.js' %}" defer></script>
+{% endblock %}
+
+{% block header_title %}Consulta de UBS por CEP{% endblock %}
+
+{% block header_links %}
+    <a href="{% url 'dashboard:dashboard' %}" class="text-sm hover:underline">Voltar ao Dashboard</a>
+{% endblock %}
+
+{% block content %}
+    <div class="mb-6">
+        <label for="cep" class="block text-sm font-medium text-gray-700">Digite o CEP (8 dígitos):</label>
+        <input type="text" id="cep" name="cep" value="{{ cep_input }}" class="mt-1 block w-full max-w-md p-2 border rounded-md" maxlength="8" oninput="consultarCep(this.value)">
+    </div>
+    {% if mensagem_erro %}
+        <p class="text-red-500 text-sm mb-4">{{ mensagem_erro }}</p>
+    {% endif %}
+    <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for logradouro in resultados %}
+            <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
+                <h3 class="text-lg font-semibold mb-2">{{ logradouro.nome }}</h3>
+                <p class="text-gray-600 mb-4">Bairro: {{ logradouro.bairro }}</p>
+                {% for ubs in logradouro.ubs_list %}
+                    <div class="mb-4">
+                        <p class="font-medium">🏥 {{ ubs.nome }}</p>
+                        <p class="text-gray-600">📍 {{ ubs.endereco }}</p>
+                        <p class="text-gray-600">📞 {{ ubs.telefone }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <!--- Deixamos o script padrão do Tailwind, mas este bloco poderia ser usado para adicionar mais JS no final do body, se necessário.--->
+    {{ block.super }} {# Isso inclui o conteúdo do bloco do pai (base.html) #}
+{% endblock %}

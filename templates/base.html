@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DASHBOARD VE{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>   
+
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+    <!-- Bloco para CSS ou JS adicionais no head -->
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Bloco para o cabeçalho, permitindo que seja sobrescrito se necessário -->
+    {% block header %}
+    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center p-4">
+            
+            <!-- Logo/Título Principal -->
+            <a href="{% url 'dashboard:dashboard' %}" class="flex items-center space-x-2">
+                <img src="{% static 'img/brasao.png' %}" alt="Logo" class="h-10 inline-block">
+                <h1 class="text-xl font-bold tracking-tight">DASHBOARD VE</h1>
+            </a>
+
+            <!-- Navegação para Desktop -->
+            <nav class="hidden md:flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'busca_docs:busca_documentos' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Documentos</a>
+                    <a href="{% url 'ubs_consulta:consulta_cep' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Consulta UBS</a>
+                    
+                    <!-- Dropdown do Usuário -->
+                    <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                        <button @click="open = !open" class="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            <span>Olá, {{ user.first_name|default:user.username }}</span>
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 text-gray-800 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm hover:bg-gray-100">Meu Perfil</a>
+                            <a href="{% url 'logout_confirm' %}" class="block px-4 py-2 text-sm hover:bg-gray-100">Sair</a>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <a href="{% url 'login' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Login</a>
+                {% endif %}
+            </nav>
+
+            <!-- Botão Hambúrguer para Mobile -->
+            <div class="md:hidden" x-data="{ open: false }">
+                <button @click="open = !open" class="text-white focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                        <path x-show="open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+
+                <!-- Menu Mobile -->
+                <div x-show="open" @click.away="open = false" class="absolute top-16 right-0 left-0 bg-blue-600 p-4">
+                    <nav class="flex flex-col space-y-2">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'busca_docs:busca_documentos' %}" class="px-3 py-2 rounded-md hover:bg-blue-700 transition-colors">Documentos</a>
+                            <a href="{% url 'ubs_consulta:consulta_cep' %}" class="px-3 py-2 rounded-md hover:bg-blue-700 transition-colors">Consulta UBS</a>
+                            <a href="#" class="px-3 py-2 rounded-md hover:bg-blue-700 transition-colors border-t border-blue-500 mt-2 pt-2">Meu Perfil</a>
+                            <a href="{% url 'logout_confirm' %}" class="px-3 py-2 rounded-md hover:bg-blue-700 transition-colors">Sair</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="px-3 py-2 rounded-md hover:bg-blue-700 transition-colors">Login</a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% endblock header %}
+
+    <!-- O conteúdo principal de cada página virá aqui -->
+    <main class="flex-grow container mx-auto p-6">
+        <div class="content-wrapper">
+            {% block content %}
+            {% endblock %}
+        </div>
+
+    </main>
+    <!-- Bloco para o rodapé -->
+    {% block footer %}
+    <footer class="bg-blue-600/80 text-white py-4">
+        <div class="container mx-auto text-center text-sm">
+            &copy; 2025 DASHBOARD VE — Developed by Bruno Machado
+        </div>
+    </footer>
+    {% endblock footer %}
+
+    <!-- Bloco para scripts no final do body -->
+    {% block extra_scripts %}
+        <script>
+            // Configuração padrão do Tailwind com animação
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        animation: {
+                            'fade-in': 'fadeIn 0.5s ease-out'
+                        },
+                        keyframes: {
+                            fadeIn: {
+                                '0%': { opacity: '0', transform: 'translateY(10px )' },
+                                '100%': { opacity: '1', transform: 'translateY(0)' }
+                            }
+                        }
+                    }
+                }
+            }
+        </script>
+    {% endblock extra_scripts %}
+</body>
+</html>
