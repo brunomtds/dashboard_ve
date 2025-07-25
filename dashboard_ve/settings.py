@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'dashboard',
     'ubs_consulta',
     'busca_docs',
+    'quadro_equipe',
 ]
 
 MIDDLEWARE = [
@@ -81,16 +82,33 @@ WSGI_APPLICATION = 'dashboard_ve.wsgi.application'
 # Substitua pelos valores reais do seu settings.py
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
+DB_ACTIVE = config('DB_ACTIVE', default='LOCAL')
+
+if DB_ACTIVE == 'SUPABASE':
+    # Configurações para o banco de dados Supabase
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_SUPABASE_NAME'),
+            'USER': config('DB_SUPABASE_USER'),
+            'PASSWORD': config('DB_SUPABASE_PASSWORD'),
+            'HOST': config('DB_SUPABASE_HOST'),
+            'PORT': config('DB_SUPABASE_PORT'),
+        }
     }
-}
+else:
+    # Configurações para o banco de dados PostgreSQL Local (padrão)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_LOCAL_NAME'),
+            'USER': config('DB_LOCAL_USER'),
+            'PASSWORD': config('DB_LOCAL_PASSWORD'),
+            'HOST': config('DB_LOCAL_HOST'),
+            'PORT': config('DB_LOCAL_PORT'),
+        }
+    }
+
 
 
 # Password validation

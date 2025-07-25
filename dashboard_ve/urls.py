@@ -29,4 +29,6 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('ubs_consulta/', include('ubs_consulta.urls')),
     path('busca_docs/', include('busca_docs.urls')),
+    path('quadro_equipe/', include('quadro_equipe.urls')),
+
 ]

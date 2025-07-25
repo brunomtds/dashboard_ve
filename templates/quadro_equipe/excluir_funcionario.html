@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Excluir Funcionário{% endblock %}
+
+{% block header_title %}Excluir Funcionário{% endblock %}
+
+{% block header_links %}
+    <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="text-sm hover:underline">← Voltar para o Quadro</a>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6 max-w-xl mx-auto text-center">
+    <h2 class="text-2xl font-semibold mb-4 text-red-600">Confirmar Exclusão</h2>
+    <p class="mb-6 text-gray-700">Tem certeza de que deseja excluir o funcionário <strong>{{ funcionario.nome }}</strong>?</p>
+
+    <form method="POST" class="flex justify-center space-x-4">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
+            🗑️ Excluir
+        </button>
+        <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600">
+            ❌ Cancelar
+        </a>
+    </form>
+</div>
+{% endblock %}
