@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 class Responsabilidade(models.Model):
     nome = models.CharField(max_length=200)
-    descricao = models.TextField()
+    descricao = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Responsabilidade'
@@ -47,7 +47,7 @@ class Funcionario(models.Model):
 
 class Departamento(models.Model):
     nome = models.CharField(max_length=200)
-    descricao = models.TextField()
+    descricao = models.TextField(blank=True, null=True)
     chefe = models.OneToOneField(
         Funcionario,
         on_delete=models.SET_NULL,

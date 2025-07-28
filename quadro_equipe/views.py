@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 from .models import Funcionario, Departamento, Responsabilidade
 from .forms import FuncionarioForm, ResponsabilidadeForm
@@ -11,6 +13,7 @@ def quadro_funcionarios(request):
     query = request.GET.get('q', '').strip()
     departamento_id = request.GET.get('departamento', '')
     so_chefias = request.GET.get('so_chefias', '')
+    responsabilidades_ids = request.GET.getlist('responsabilidades')
 
     funcionarios = Funcionario.objects.select_related('departamento').prefetch_related('responsabilidades').all()
 
@@ -27,15 +30,45 @@ def quadro_funcionarios(request):
     if so_chefias:
         funcionarios = funcionarios.filter(is_chefia=True)
 
+    if responsabilidades_ids:
+        funcionarios = funcionarios.filter(responsabilidades__id__in=responsabilidades_ids).distinct()
+
     funcionarios = funcionarios.order_by('nome')
 
     paginator = Paginator(funcionarios, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    # Se for uma requisição AJAX, retorna apenas os dados dos funcionários
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        # Renderiza apenas a parte dos resultados
+        resultados_html = render_to_string('quadro_equipe/partials/funcionarios_resultados.html', {
+            'page_obj': page_obj,
+            'query': query,
+            'departamento_id': departamento_id,
+            'so_chefias': so_chefias,
+        }, request=request)
+        
+        # Renderiza a paginação
+        paginacao_html = render_to_string('quadro_equipe/partials/funcionarios_paginacao.html', {
+            'page_obj': page_obj,
+            'query': query,
+            'departamento_id': departamento_id,
+            'so_chefias': so_chefias,
+        }, request=request)
+        
+        return JsonResponse({
+            'resultados_html': resultados_html,
+            'paginacao_html': paginacao_html,
+            'total_resultados': funcionarios.count(),
+        })
+
+    # Requisição normal - renderiza a página completa
     context = {
         'funcionarios': page_obj,
         'departamentos': Departamento.objects.all().order_by('nome'),
+        'responsabilidades': Responsabilidade.objects.all().order_by('nome'),
+        'responsabilidades_ids': responsabilidades_ids,
         'query': query,
         'departamento_id': departamento_id,
         'so_chefias': so_chefias,
@@ -115,3 +148,4 @@ def adicionar_responsabilidade(request):
     context = {'form': form}
 
     return render(request, 'quadro_equipe/adicionar_responsabilidade.html', context)
+

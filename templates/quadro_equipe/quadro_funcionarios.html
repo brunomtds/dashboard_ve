@@ -24,7 +24,7 @@
             {% endif %}
         </div>
         
-        <form method="GET" class="space-y-4">
+        <form method="GET" id="filtroForm" action="{% url 'quadro_equipe:quadro_funcionarios' %}" class="space-y-4">
             <!-- Busca por texto -->
             <div>
                 <label for="q" class="block text-sm font-medium text-gray-700 mb-2">Buscar por nome</label>
@@ -69,16 +69,26 @@
                     >
                     <label for="so_chefias" class="text-sm text-gray-700">Mostrar apenas chefias</label>
                 </div>
+                <!-- Filtro de Responsabilidades -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Responsabilidades</label>
+                    <div class="flex flex-wrap gap-3 border p-4 rounded-lg max-w-full md:max-w-3xl">
+                        {% for r in responsabilidades %}
+                            <label for="r_{{ r.id }}" class="cursor-pointer">
+                                <input type="checkbox" id="r_{{ r.id }}" name="responsabilidades" value="{{ r.id }}" class="hidden peer responsabilidade-checkbox"
+                                    {% if r.id|stringformat:"s" in responsabilidades_ids %}checked{% endif %}>
+                                <div class="peer-checked:bg-blue-600 peer-checked:text-white px-4 py-2 rounded-md border border-gray-300 text-sm transition">
+                                    {{ r.nome }}
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
+            
 
-            <!-- Botões -->
+            <!-- Botão Limpar -->
             <div class="flex space-x-3">
-                <button 
-                    type="submit"
-                    class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
-                >
-                    🔍 Buscar
-                </button>
                 <a 
                     href="{% url 'quadro_equipe:quadro_funcionarios' %}"
                     class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
@@ -95,75 +105,15 @@
 
     <!-- Resultados -->
     <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% if page_obj.object_list %}
-            {% for funcionario in page_obj %}
-                <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
-                    <h3 class="text-lg font-semibold mb-2">
-                        {{ funcionario.nome }}
-                    </h3>
-
-                    <p class="text-gray-600 mb-2">🏢 {{ funcionario.departamento.nome }}</p>
-
-                    <p class="text-gray-600 mb-2">📞 Ramal: {{ funcionario.ramal }}</p>
-
-                    <p class="text-gray-600 mb-2">
-                        {% if funcionario.is_chefia %}
-                            👑 Chefia
-                        {% else %}
-                            👥 Colaborador
-                        {% endif %}
-                    </p>
-
-                    {% if funcionario.responsabilidades.all %}
-                        <div class="mb-3">
-                            <p class="text-sm font-semibold mb-1">Responsabilidades:</p>
-                            <div class="flex flex-wrap gap-1">
-                                {% for responsa in funcionario.responsabilidades.all %}
-                                    <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ responsa.nome }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endif %}
-
-                    <div class="flex justify-between items-center">
-                        <a 
-                            href="{% url 'quadro_equipe:editar_funcionario' funcionario.id %}"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                        >
-                            ✏️ Editar
-                        </a>
-                        <a 
-                            href="{% url 'quadro_equipe:excluir_funcionario' funcionario.id %}"
-                            class="text-red-600 hover:text-red-800 text-sm font-medium"
-                        >
-                            🗑️ Excluir
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-span-full text-center py-12">
-                <div class="text-6xl mb-4">📭</div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum funcionário encontrado</h3>
-                <p class="text-gray-600">Tente ajustar os filtros de busca ou usar um nome diferente.</p>
-            </div>
-        {% endif %}
+        {% include 'quadro_equipe/partials/funcionarios_resultados.html' %}
     </div>
 
     <!-- Paginação -->
     <div class="mt-6">
-        {% if page_obj.has_other_pages %}
-            <div class="flex justify-center space-x-2">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}&q={{ query }}&departamento={{ departamento_id }}&so_chefias={{ so_chefias }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Anterior</a>
-                {% endif %}
-
-                <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
-
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}&q={{ query }}&departamento={{ departamento_id }}&so_chefias={{ so_chefias }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Próxima &raquo;</a>
-                {% endif %}
-            </div>
-        {% endif %}
+        {% include 'quadro_equipe/partials/funcionarios_paginacao.html' %}
     </div>
+
+    <!-- Incluindo o script JavaScript AJAX -->
+    <script src="{% static 'js/busca_func.js' %}"></script>
 {% endblock %}
+

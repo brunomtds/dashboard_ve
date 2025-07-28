@@ -1,0 +1,54 @@
+{% if page_obj.object_list %}
+    {% for funcionario in page_obj %}
+        <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
+            <h3 class="text-lg font-semibold mb-2">
+                {{ funcionario.nome }}
+            </h3>
+
+            <p class="text-gray-600 mb-2">🏢 {{ funcionario.departamento.nome }}</p>
+
+            <p class="text-gray-600 mb-2">📞 Ramal: {{ funcionario.ramal }}</p>
+
+            <p class="text-gray-600 mb-2">
+                {% if funcionario.is_chefia %}
+                    👑 Chefia
+                {% else %}
+                    👥 Colaborador
+                {% endif %}
+            </p>
+
+            {% if funcionario.responsabilidades.all %}
+                <div class="mb-3">
+                    <p class="text-sm font-semibold mb-1">Responsabilidades:</p>
+                    <div class="flex flex-wrap gap-1">
+                        {% for responsa in funcionario.responsabilidades.all %}
+                            <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ responsa.nome }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="flex justify-between items-center">
+                <a 
+                    href="{% url 'quadro_equipe:editar_funcionario' funcionario.id %}"
+                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                    ✏️ Editar
+                </a>
+                <a 
+                    href="{% url 'quadro_equipe:excluir_funcionario' funcionario.id %}"
+                    class="text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                    🗑️ Excluir
+                </a>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="col-span-full text-center py-12">
+        <div class="text-6xl mb-4">📭</div>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum funcionário encontrado</h3>
+        <p class="text-gray-600">Tente ajustar os filtros de busca ou usar um nome diferente.</p>
+    </div>
+{% endif %}
+

@@ -7,10 +7,18 @@ class FuncionarioForm(forms.ModelForm):
         model = Funcionario
         fields = ['nome', 'departamento', 'ramal', 'responsabilidades', 'is_chefia']  # sem 'chefe'
         widgets = {
-            'nome': forms.TextInput(attrs={'class': 'form-control'}),
-            'departamento': forms.Select(attrs={'class': 'form-control'}),
-            'ramal': forms.TextInput(attrs={'class': 'form-control'}),
-            'responsabilidades': forms.CheckboxSelectMultiple(),
+            'nome': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border rounded-md',
+                'placeholder': 'Digite o nome do funcionário'
+            }),
+            'departamento': forms.Select(attrs={
+                'class': 'mt-1 block w-full p-2 border rounded-md'
+            }),
+            'ramal': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full p-2 border rounded-md',
+                'placeholder': 'XXXX'
+            }),
+            'responsabilidades': forms.CheckboxSelectMultiple(attrs={'class': 'peer hidden'}),
             'is_chefia': forms.CheckboxInput(),
         }
         labels = {
@@ -25,6 +33,9 @@ class FuncionarioForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['departamento'].queryset = Departamento.objects.order_by('nome')
         self.fields['responsabilidades'].queryset = Responsabilidade.objects.order_by('nome')
+
+        # Tornar categoria opcional
+        self.fields['departamento'].empty_label = "Selecione um departamento"
 
 
 class ResponsabilidadeForm(forms.ModelForm):

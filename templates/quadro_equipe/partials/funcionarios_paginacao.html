@@ -1,0 +1,14 @@
+{% if page_obj.has_other_pages %}
+    <div class="flex justify-center space-x-2">
+        {% if page_obj.has_previous %}
+            <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Anterior</a>
+        {% endif %}
+
+        <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+            <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Próxima &raquo;</a>
+        {% endif %}
+    </div>
+{% endif %}
+

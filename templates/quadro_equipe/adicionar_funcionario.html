@@ -30,7 +30,7 @@
 
             <!-- Nome -->
             <div>
-                <label for="{{ form.nome.id_for_label }}" class="mt-1 block w-full p-2 border rounded-md">
+                <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                     {{ form.nome.label }}
                     <span class="text-red-500">*</span>
                 </label>
@@ -49,6 +49,7 @@
             <div>
                 <label for="{{ form.departamento.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
                     {{ form.departamento.label }}
+                    <span class="text-red-500">*</span>
                 </label>
                 {{ form.departamento }}
                 {% if form.departamento.help_text %}
@@ -78,12 +79,31 @@
                 {% endif %}
             </div>
 
-            <!-- Responsabilidades -->
+            <!-- Responsabilidades como cards clicáveis -->
             <div>
-                <label for="{{ form.responsabilidades.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
                     {{ form.responsabilidades.label }}
                 </label>
-                {{ form.responsabilidades }}
+
+                <div class="flex flex-wrap gap-2">
+                    {% for responsabilidade in form.responsabilidades %}
+                        <label class="relative cursor-pointer group">
+                            {{ responsabilidade.tag }}
+                            <div class="absolute inset-0 rounded-lg border border-gray-300 bg-white
+                                        transition-all duration-200
+                                        group-hover:border-blue-400
+                                        peer-checked:border-blue-600
+                                        peer-checked:bg-blue-50
+                                        pointer-events-none">
+                            </div>
+                            <div class="block relative z-10 px-3 py-2 text-sm text-gray-800 
+                                        w-[150px] max-w-full text-center">
+                                {{ responsabilidade.choice_label }}
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+
                 {% if form.responsabilidades.help_text %}
                     <p class="text-sm text-gray-500 mt-1">{{ form.responsabilidades.help_text }}</p>
                 {% endif %}
@@ -93,6 +113,9 @@
                     {% endfor %}
                 {% endif %}
             </div>
+
+
+
 
             <!-- Is Chefia -->
             <div class="flex items-center space-x-2">

@@ -18,7 +18,9 @@
         {{ form.non_field_errors }}
         
         <div class="space-y-4">
-            {% for field in form %}
+        {# Campos individuais exceto responsabilidades #}
+        {% for field in form %}
+            {% if field.name != 'responsabilidades' %}
                 <div>
                     <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
                         {{ field.label }}
@@ -31,10 +33,46 @@
                         <p class="text-sm text-red-600">{{ error }}</p>
                     {% endfor %}
                 </div>
-            {% endfor %}
+            {% endif %}
+        {% endfor %}
+
+        {# Campo customizado: responsabilidades com cards #}
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                {{ form.responsabilidades.label }}
+            </label>
+
+            <div class="flex flex-wrap gap-2 justify-center">
+                {% for responsabilidade in form.responsabilidades %}
+                    <label class="relative cursor-pointer group flex">
+                        {{ responsabilidade.tag }}
+                        <div class="absolute inset-0 rounded-lg border border-gray-300 bg-white
+                                    transition-all duration-200
+                                    group-hover:border-blue-400
+                                    peer-checked:border-blue-600
+                                    peer-checked:bg-blue-50
+                                    pointer-events-none">
+                        </div>
+                        <div class="block relative z-10 px-3 py-2 text-sm text-gray-800 
+                                    w-[200px] max-w-full text-center">
+                            {{ responsabilidade.choice_label }}
+                        </div>
+                    </label>
+                {% endfor %}
+            </div>
+
+            {% if form.responsabilidades.help_text %}
+                <p class="text-sm text-gray-500 mt-1">{{ form.responsabilidades.help_text }}</p>
+            {% endif %}
+            {% if form.responsabilidades.errors %}
+                {% for error in form.responsabilidades.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
         </div>
 
-        <div class="mt-6 flex justify-end space-x-3">
+
+        <div class="pt-10 flex justify-center space-x-3">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                 💾 Atualizar
             </button>
