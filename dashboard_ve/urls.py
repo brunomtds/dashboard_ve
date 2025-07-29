@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import TemplateView
-from dashboard.views import dashboard_view
+from dashboard.views import dashboard_view, solicitar_acesso
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -29,6 +29,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/confirm/', TemplateView.as_view(template_name='registration/logout.html'), name='logout_confirm'),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('solicitar_acesso/', solicitar_acesso, name='solicitar_acesso'),
     path('dashboard/', include('dashboard.urls')),
     path('ubs_consulta/', include('ubs_consulta.urls')),
     path('busca_docs/', include('busca_docs.urls')),
