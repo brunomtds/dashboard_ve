@@ -1,45 +1,187 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% load static %}
 
 {% block title %}Consulta de UBS por CEP{% endblock %}
 
 {% block extra_head %}
-    {# Carrega o script específico desta página no <head> #}
-    <script src="{% static 'ubs_consulta/js/consulta_cep.js' %}" defer></script>
-{% endblock %}
-
-{% block header_title %}Consulta de UBS por CEP{% endblock %}
-
-{% block header_links %}
-    <a href="{% url 'dashboard:dashboard' %}" class="text-sm hover:underline">Voltar ao Dashboard</a>
+    <script src="{% static 'js/consulta_cep.js' %}" defer></script>
+    <style>
+        /* Animações personalizadas */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Spinner customizado */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Melhorias no campo de input */
+        .cep-input {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .cep-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        
+        .cep-input:invalid {
+            border-color: #ef4444;
+        }
+        
+        /* Cards com hover melhorado */
+        .ubs-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .ubs-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <div class="mb-6">
-        <label for="cep" class="block text-sm font-medium text-gray-700">Digite o CEP (8 dígitos):</label>
-        <input type="text" id="cep" name="cep" value="{{ cep_input }}" class="mt-1 block w-full max-w-md p-2 border rounded-md" maxlength="8" oninput="consultarCep(this.value)">
-    </div>
-    {% if mensagem_erro %}
-        <p class="text-red-500 text-sm mb-4">{{ mensagem_erro }}</p>
-    {% endif %}
-    <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for logradouro in resultados %}
-            <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
-                <h3 class="text-lg font-semibold mb-2">{{ logradouro.nome }}</h3>
-                <p class="text-gray-600 mb-4">Bairro: {{ logradouro.bairro }}</p>
-                {% for ubs in logradouro.ubs_list %}
-                    <div class="mb-4">
-                        <p class="font-medium">🏥 {{ ubs.nome }}</p>
-                        <p class="text-gray-600">📍 {{ ubs.endereco }}</p>
-                        <p class="text-gray-600">📞 {{ ubs.telefone }}</p>
+    <div class="max-w-7xl mx-auto">
+        <!-- Cabeçalho da página -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">🏥 Consulta de UBS por CEP</h1>
+            <p class="text-gray-600">Digite seu CEP para encontrar as Unidades Básicas de Saúde da sua região</p>
+        </div>
+
+        <!-- Campo de busca -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="max-w-md mx-auto">
+                <label for="cep" class="block text-sm font-medium text-gray-700 mb-2">
+                    CEP (8 dígitos):
+                </label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        inputmode="numeric" 
+                        id="cep" 
+                        name="cep" 
+                        value="{{ cep_input }}" 
+                        class="cep-input mt-1 block w-full p-3 text-lg rounded-md" 
+                        maxlength="9"
+                        placeholder="12345-678"
+                        autocomplete="postal-code"
+                        aria-describedby="cep-help"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
                     </div>
-                {% endfor %}
+                </div>
+                <p id="cep-help" class="mt-2 text-sm text-gray-500">
+                    Digite um CEP de Jundiaí (deve começar com 1320 ou 1321)
+                </p>
             </div>
-        {% endfor %}
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div id="mensagem_erro_container" class="mb-4" style="display: none;">
+            <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p id="mensagem_erro" class="text-sm text-red-800">
+                            {% if mensagem_erro %}{{ mensagem_erro }}{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de resultados -->
+        <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[200px]">
+            {# Conteúdo inicial renderizado pelo servidor #}
+            {% for logradouro in resultados %}
+                <div class="ubs-card bg-white p-6 rounded-lg shadow-md animate-fade-in">
+                    <h3 class="text-lg font-semibold mb-2 text-blue-800">{{ logradouro.nome }}</h3>
+                    <p class="text-gray-600 mb-4 font-medium">📍 Bairro: {{ logradouro.bairro }}</p>
+                    {% for ubs in logradouro.ubs_list %}
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                            <p class="font-medium text-gray-800">🏥 {{ ubs.nome }}</p>
+                            {% if ubs.endereco %}
+                                <p class="text-gray-600 text-sm mt-1">📍 {{ ubs.endereco }}</p>
+                            {% endif %}
+                            {% if ubs.telefone and ubs.telefone != "N/A" %}
+                                <p class="text-gray-600 text-sm mt-1">📞 {{ ubs.telefone }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Rodapé informativo -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Informações importantes</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Este serviço consulta apenas CEPs da cidade de Jundiaí</li>
+                            <li>Os dados são atualizados periodicamente pela Secretaria de Saúde</li>
+                            <li>Em caso de dúvidas, entre em contato com a UBS mais próxima</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block extra_scripts %}
-    <!--- Deixamos o script padrão do Tailwind, mas este bloco poderia ser usado para adicionar mais JS no final do body, se necessário.--->
-    {{ block.super }} {# Isso inclui o conteúdo do bloco do pai (base.html) #}
+    {{ block.super }}
+    <script>
+        // Mostra container de erro quando necessário
+        document.addEventListener('DOMContentLoaded', function() {
+            const mensagemErro = document.getElementById('mensagem_erro');
+            const container = document.getElementById('mensagem_erro_container');
+            
+            if (mensagemErro.textContent.trim()) {
+                container.style.display = 'block';
+            }
+        });
+    </script>
 {% endblock %}

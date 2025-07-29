@@ -32,8 +32,8 @@
             <!-- Navegação para Desktop -->
             <nav class="hidden md:flex items-center space-x-4">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'busca_docs:busca_documentos' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Documentos</a>
                     <a href="{% url 'ubs_consulta:consulta_cep' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Consulta UBS</a>
+                    <a href="{% url 'busca_docs:busca_documentos' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Documentos</a>
                     <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">Funcionários</a>
                     
                     <!-- Dropdown do Usuário -->

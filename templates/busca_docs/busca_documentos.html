@@ -9,120 +9,256 @@
     <a href="{% url 'dashboard:dashboard' %}" class="text-sm hover:underline">Dashboard</a>
 {% endblock %}
 
+{% block extra_head %}
+    <style>
+        /* Animações personalizadas */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Melhorias nos campos de input */
+        .search-input {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        
+        .search-select {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .search-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+        
+        /* Cards com hover melhorado */
+        .doc-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .doc-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        /* Tags com estilo melhorado */
+        .tag-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .tag-item:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Container de tags com scroll personalizado */
+        .tags-container {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+        
+        .tags-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .tags-container::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 3px;
+        }
+        
+        .tags-container::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+        
+        .tags-container::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
+    <div class="max-w-7xl mx-auto">
+        <!-- Cabeçalho da página -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">📚 Busca de Documentos</h1>
+            <p class="text-gray-600">Encontre documentos por título, categoria ou tags</p>
+        </div>
+
         <!-- Formulário de Busca -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-semibold text-gray-800">Buscar Documentos</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">Filtros de Busca</h2>
                 {% if user.is_staff %}
                     <a 
                         href="{% url 'busca_docs:adicionar_documento' %}"
-                        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transform transition hover:-translate-y-1"
+                        class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transform transition hover:-translate-y-1 flex items-center space-x-2"
                     >
-                        ➕ Adicionar Documento
+                        <span>➕</span>
+                        <span>Adicionar Documento</span>
                     </a>
                 {% endif %}
             </div>
             
-            <form method="GET" class="space-y-4">
-                <!-- Busca por texto -->
-                <div>
-                    <label for="q" class="block text-sm font-medium text-gray-700 mb-2">Busca por título ou descrição</label>
-                    <input 
-                        type="text" 
-                        id="q" 
-                        name="q" 
-                        value="{{ query }}"
-                        placeholder="Digite palavras-chave para buscar..."
-                        class="mt-1 block w-full max-w-md p-2 border rounded-md"
-                    >
-                </div>
+            <form method="GET" class="space-y-6">
+                <!-- Layout reorganizado: 2 colunas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Coluna 1: Busca de texto e Categoria (2 linhas) -->
+                    <div class="space-y-6">
+                        <!-- Busca por texto -->
+                        <div>
+                            <label for="q" class="block text-sm font-medium text-gray-700 mb-2">
+                                Busca por título ou descrição:
+                            </label>
+                            <div class="relative">
+                                <input 
+                                    type="text" 
+                                    id="q" 
+                                    name="q" 
+                                    value="{{ query }}"
+                                    placeholder="Digite palavras-chave para buscar..."
+                                    class="search-input mt-1 block w-full p-3 text-lg rounded-md"
+                                    autocomplete="off"
+                                >
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-500">
+                                Digite palavras-chave para buscar nos títulos e descrições dos documentos
+                            </p>
+                        </div>
 
-                <!-- Filtros -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Categoria -->
-                    <div>
-                        <label for="categoria" class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
-                        <select 
-                            id="categoria" 
-                            name="categoria"
-                            class="mt-1 block w-full p-2 border rounded-md"
-                        >
-                            <option value="">Todas as categorias</option>
-                            {% for categoria in todas_categorias %}
-                                <option value="{{ categoria.id }}" {% if categoria.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>
-                                    {{ categoria.nome }}
-                                </option>
-                            {% endfor %}
-                        </select>
+                        <!-- Categoria -->
+                        <div>
+                            <label for="categoria" class="block text-sm font-medium text-gray-700 mb-2">
+                                Categoria:
+                            </label>
+                            <select 
+                                id="categoria" 
+                                name="categoria"
+                                class="search-select mt-1 block w-full p-3 rounded-md"
+                            >
+                                <option value="">📁 Todas as categorias</option>
+                                {% for categoria in todas_categorias %}
+                                    <option value="{{ categoria.id }}" {% if categoria.id|stringformat:"s" == categoria_selecionada %}selected{% endif %}>
+                                        📂 {{ categoria.nome }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Tags -->
+                    <!-- Coluna 2: Tags (1 linha, altura total) -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
-                        <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-gray-50">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Tags:
+                        </label>
+                        <div class="tags-container h-48 overflow-y-auto border-2 border-gray-200 rounded-md p-3 bg-gray-50">
                             {% for tag in todas_tags %}
-                                <label class="flex items-center space-x-2 py-1">
+                                <label class="flex items-center space-x-2 py-2 hover:bg-gray-100 rounded px-2 cursor-pointer transition">
                                     <input 
                                         type="checkbox" 
                                         name="tags" 
                                         value="{{ tag.id }}"
                                         {% if tag in tags_selecionadas %}checked{% endif %}
-                                        class="rounded border-gray-300"
+                                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     >
-                                    <span class="text-sm text-gray-700">{{ tag.nome }}</span>
+                                    <span class="text-sm text-gray-700 font-medium">🏷️ {{ tag.nome }}</span>
                                 </label>
                             {% endfor %}
                         </div>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Selecione uma ou mais tags para filtrar os documentos
+                        </p>
                     </div>
                 </div>
 
                 <!-- Botões -->
-                <div class="flex space-x-3">
+                <div class="flex space-x-3 pt-4 border-t border-gray-200">
                     <button 
                         type="submit"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+                        class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition flex items-center space-x-2"
                     >
-                        🔍 Buscar
+                        <span>🔍</span>
+                        <span>Buscar Documentos</span>
                     </button>
                     <a 
                         href="{% url 'busca_docs:busca_documentos' %}"
-                        class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600"
+                        class="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition flex items-center space-x-2"
                     >
-                        🔄 Limpar
+                        <span>🔄</span>
+                        <span>Limpar Filtros</span>
                     </a>
                 </div>
             </form>
         </div>
 
+        <!-- Mensagem de erro -->
         {% if mensagem_erro %}
-            <p class="text-red-500 text-sm mb-4">{{ mensagem_erro }}</p>
+            <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-800">{{ mensagem_erro }}</p>
+                    </div>
+                </div>
+            </div>
         {% endif %}
         
-        <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Área de resultados -->
+        <div id="resultados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[200px]">
             {% if filtros_aplicados %}
                 <!-- Resultados da busca -->
                 {% if page_obj.object_list %}
                     {% for documento in page_obj %}
-                        <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
-                            <h3 class="text-lg font-semibold mb-2">
-                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600">
-                                    {{ documento.titulo }}
+                        <div class="doc-card bg-white p-6 rounded-lg shadow-md animate-fade-in">
+                            <h3 class="text-lg font-semibold mb-3 text-blue-800">
+                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600 transition">
+                                    📄 {{ documento.titulo }}
                                 </a>
                             </h3>
                             
                             {% if documento.categoria %}
-                                <p class="text-gray-600 mb-2">📁 {{ documento.categoria.nome }}</p>
+                                <p class="text-gray-600 mb-3 font-medium">📁 {{ documento.categoria.nome }}</p>
                             {% endif %}
 
                             {% if documento.descricao %}
-                                <p class="text-gray-600 mb-4">{{ documento.descricao|truncatewords:15 }}</p>
+                                <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ documento.descricao|truncatewords:15 }}</p>
                             {% endif %}
 
                             {% if documento.tags.all %}
-                                <div class="flex flex-wrap gap-1 mb-3">
+                                <div class="flex flex-wrap gap-2 mb-4">
                                     {% for tag in documento.tags.all %}
-                                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
+                                        <span class="tag-item text-xs px-2 py-1 rounded-full">
                                             {{ tag.nome }}
                                         </span>
                                     {% endfor %}
@@ -130,23 +266,28 @@
                             {% endif %}
 
                             {% if documento.data_publicacao %}
-                                <p class="text-xs text-gray-500 mb-3">📅 {{ documento.data_publicacao|date:"d/m/Y" }}</p>
+                                <p class="text-xs text-gray-500 mb-4 flex items-center">
+                                    <span class="mr-1">📅</span>
+                                    {{ documento.data_publicacao|date:"d/m/Y" }}
+                                </p>
                             {% endif %}
 
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center pt-3 border-t border-gray-100">
                                 <a 
                                     href="{% url 'busca_docs:detalhes_documento' documento.id %}"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium transition flex items-center space-x-1"
                                 >
-                                    Ver detalhes →
+                                    <span>Ver detalhes</span>
+                                    <span>→</span>
                                 </a>
                                 {% if documento.arquivo %}
                                     <a 
                                         href="{{ documento.arquivo.url }}" 
                                         target="_blank"
-                                        class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200"
+                                        class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full hover:bg-green-200 transition flex items-center space-x-1"
                                     >
-                                        📄 Download
+                                        <span>📄</span>
+                                        <span>Download</span>
                                     </a>
                                 {% endif %}
                             </div>
@@ -163,27 +304,27 @@
                 <!-- Exibição agrupada por categoria -->
                 {% for categoria, documentos in documentos_agrupados.items %}
                     {% for documento in documentos %}
-                        <div class="bg-white p-6 rounded-lg shadow-md transform transition hover:-translate-y-1 animate-fade-in">
-                            <h3 class="text-lg font-semibold mb-2">
-                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600">
-                                    {{ documento.titulo }}
+                        <div class="doc-card bg-white p-6 rounded-lg shadow-md animate-fade-in">
+                            <h3 class="text-lg font-semibold mb-3 text-blue-800">
+                                <a href="{% url 'busca_docs:detalhes_documento' documento.id %}" class="hover:text-blue-600 transition">
+                                    📄 {{ documento.titulo }}
                                 </a>
                             </h3>
                             
                             {% if documento.categoria %}
-                                <p class="text-gray-600 mb-2">📁 {{ documento.categoria.nome }}</p>
+                                <p class="text-gray-600 mb-3 font-medium">📁 {{ documento.categoria.nome }}</p>
                             {% else %}
-                                <p class="text-gray-600 mb-2">📂 Sem Categoria</p>
+                                <p class="text-gray-600 mb-3 font-medium">📂 Sem Categoria</p>
                             {% endif %}
 
                             {% if documento.descricao %}
-                                <p class="text-gray-600 mb-4">{{ documento.descricao|truncatewords:15 }}</p>
+                                <p class="text-gray-600 mb-4 text-sm leading-relaxed">{{ documento.descricao|truncatewords:15 }}</p>
                             {% endif %}
 
                             {% if documento.tags.all %}
-                                <div class="flex flex-wrap gap-1 mb-3">
+                                <div class="flex flex-wrap gap-2 mb-4">
                                     {% for tag in documento.tags.all %}
-                                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">
+                                        <span class="tag-item text-xs px-2 py-1 rounded-full">
                                             {{ tag.nome }}
                                         </span>
                                     {% endfor %}
@@ -191,23 +332,28 @@
                             {% endif %}
 
                             {% if documento.data_publicacao %}
-                                <p class="text-xs text-gray-500 mb-3">📅 {{ documento.data_publicacao|date:"d/m/Y" }}</p>
+                                <p class="text-xs text-gray-500 mb-4 flex items-center">
+                                    <span class="mr-1">📅</span>
+                                    {{ documento.data_publicacao|date:"d/m/Y" }}
+                                </p>
                             {% endif %}
 
-                            <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-center pt-3 border-t border-gray-100">
                                 <a 
                                     href="{% url 'busca_docs:detalhes_documento' documento.id %}"
-                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    class="text-blue-600 hover:text-blue-800 text-sm font-medium transition flex items-center space-x-1"
                                 >
-                                    Ver detalhes →
+                                    <span>Ver detalhes</span>
+                                    <span>→</span>
                                 </a>
                                 {% if documento.arquivo %}
                                     <a 
                                         href="{{ documento.arquivo.url }}" 
                                         target="_blank"
-                                        class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded hover:bg-green-200"
+                                        class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full hover:bg-green-200 transition flex items-center space-x-1"
                                     >
-                                        📄 Download
+                                        <span>📄</span>
+                                        <span>Download</span>
                                     </a>
                                 {% endif %}
                             </div>
@@ -216,30 +362,41 @@
                 {% empty %}
                     <div class="col-span-full text-center py-12">
                         <div class="text-6xl mb-4">📚</div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Nenhum documento cadastrado</h3>
-                        <p class="text-gray-600">O acervo ainda não possui documentos.</p>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Bem-vindo ao acervo de documentos</h3>
+                        <p class="text-gray-600 mb-4">Use os filtros acima para encontrar documentos específicos ou navegue pelos documentos disponíveis.</p>
+                        {% if user.is_staff %}
+                            <a 
+                                href="{% url 'busca_docs:adicionar_documento' %}"
+                                class="inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            >
+                                <span>➕</span>
+                                <span>Adicionar primeiro documento</span>
+                            </a>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
-    </main>
-</body>
-</html>
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                animation: {
-                    'fade-in': 'fadeIn 0.5s ease-out'
-                },
-                keyframes: {
-                    fadeIn: {
-                        '0%': { opacity: '0', transform: 'translateY(10px)' },
-                        '100%': { opacity: '1', transform: 'translateY(0)' }
-                    }
-                }
-            }
-        }
-    }
-</script>
+
+        <!-- Rodapé informativo -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Dicas de busca</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Use palavras-chave específicas para encontrar documentos mais rapidamente</li>
+                            <li>Combine filtros de categoria e tags para resultados mais precisos</li>
+                            <li>Clique em "Ver detalhes" para mais informações sobre cada documento</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
