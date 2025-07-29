@@ -20,6 +20,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import TemplateView
 from dashboard.views import dashboard_view
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard_view, name='dashboard'),
@@ -32,3 +35,8 @@ urlpatterns = [
     path('quadro_equipe/', include('quadro_equipe.urls')),
 
 ]
+
+
+# SERVE ARQUIVOS DE MÍDIA (upload de imagens, etc.)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
