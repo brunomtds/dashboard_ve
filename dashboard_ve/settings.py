@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'dashboard.middleware.FirstAccessMiddleware',
 ]
 
 ROOT_URLCONF = 'dashboard_ve.urls'
@@ -153,6 +154,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'    # Para coletar arquivos em produção
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
+PASSWORD_CHANGE_REDIRECT_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

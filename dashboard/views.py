@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
 from .models import SolicitacaoAcesso 
 from quadro_equipe.models import Departamento
 
@@ -46,3 +48,16 @@ def solicitar_acesso(request):
     return render(request, 'registration/access_solicitation.html', {
         'departamentos': departamentos
     })
+
+class CustomPasswordChangeView(PasswordChangeView):
+    success_url = reverse_lazy('password_change_done')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        # Marca como primeiro acesso concluído
+        if hasattr(self.request.user, 'profile'):
+            self.request.user.profile.first_access = False
+            self.request.user.profile.save()
+
+        return response
