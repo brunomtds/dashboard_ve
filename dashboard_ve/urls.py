@@ -22,11 +22,20 @@ from dashboard.views import dashboard_view, solicitar_acesso
 
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard_view, name='dashboard'),
-    path('login/', LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('login/', CustomLoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/confirm/', TemplateView.as_view(template_name='registration/logout.html'), name='logout_confirm'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('solicitar_acesso/', solicitar_acesso, name='solicitar_acesso'),

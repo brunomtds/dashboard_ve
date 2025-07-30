@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load widget_tweaks %}
+
 
 {% block title %}Editar Funcionário{% endblock %}
 
@@ -9,77 +11,149 @@
     <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="text-sm hover:underline">← Voltar para o Quadro</a>
 {% endblock %}
 
-{% block content %}
-<div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
-    <h2 class="text-2xl font-semibold mb-4">Editar: {{ funcionario.nome }}</h2>
+{% block extra_head %}
+    <style>
+        /* Animações e estilos globais */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-        
-        <div class="space-y-4">
-        {# Campos individuais exceto responsabilidades #}
-        {% for field in form %}
-            {% if field.name != 'responsabilidades' %}
-                <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                        {{ field.label }}
-                    </label>
-                    {{ field }}
-                    {% if field.help_text %}
-                        <p class="text-xs text-gray-500">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="text-sm text-red-600">{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endfor %}
+        /* Estilo para inputs e selects */
+        .form-input {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
 
-        {# Campo customizado: responsabilidades com cards #}
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-                {{ form.responsabilidades.label }}
-            </label>
-
-            <div class="flex flex-wrap gap-2 justify-center">
-                {% for responsabilidade in form.responsabilidades %}
-                    <label class="relative cursor-pointer group flex">
-                        {{ responsabilidade.tag }}
-                        <div class="absolute inset-0 rounded-lg border border-gray-300 bg-white
-                                    transition-all duration-200
-                                    group-hover:border-blue-400
-                                    peer-checked:border-blue-600
-                                    peer-checked:bg-blue-50
-                                    pointer-events-none">
-                        </div>
-                        <div class="block relative z-10 px-3 py-2 text-sm text-gray-800 
-                                    w-[200px] max-w-full text-center">
-                            {{ responsabilidade.choice_label }}
-                        </div>
-                    </label>
-                {% endfor %}
-            </div>
-
-            {% if form.responsabilidades.help_text %}
-                <p class="text-sm text-gray-500 mt-1">{{ form.responsabilidades.help_text }}</p>
-            {% endif %}
-            {% if form.responsabilidades.errors %}
-                {% for error in form.responsabilidades.errors %}
-                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
-                {% endfor %}
-            {% endif %}
-        </div>
-
-
-        <div class="pt-10 flex justify-center space-x-3">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
-                💾 Atualizar
-            </button>
-            <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600">
-                ❌ Cancelar
-            </a>
-        </div>
-    </form>
-</div>
+        /* Estilo para checkboxes de responsabilidades */
+        .responsabilidade-checkbox-label {
+            transition: all 0.2s ease;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            color: #4b5563;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px; /* full rounded */
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .responsabilidade-checkbox-label:hover {
+            background-color: #e5e7eb;
+            border-color: #9ca3af;
+        }
+        .responsabilidade-checkbox-input:checked + .responsabilidade-checkbox-label {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+        .responsabilidade-checkbox-input:checked + .responsabilidade-checkbox-label:hover {
+            background-color: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+    </style>
 {% endblock %}
+
+{% block content %}
+    <div class="max-w-4xl mx-auto">
+        <!-- Cabeçalho da página -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">✏️ Editar Funcionário</h1>
+            <p class="text-gray-600">Atualize os dados de {{ funcionario.nome }}</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-md 
+                    {% if message.tags == 'success' %}bg-green-100 text-green-800 border border-green-200
+                    {% elif message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200
+                    {% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-md p-6 animate-fade-in">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-800">Dados do Funcionário</h2>
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                
+                <!-- Campos individuais exceto responsabilidades -->
+                {% for field in form %}
+                    {% if field.name != 'responsabilidades' and field.name != 'is_chefia' %}
+                        <div>
+                            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ field.label }}
+                                {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                            </label>
+                            {{ field|add_class:"form-input w-full" }}
+                            {% if field.help_text %}
+                                <p class="text-sm text-gray-500 mt-1">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Campo customizado: responsabilidades com cards -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.responsabilidades.label }}
+                    </label>
+                    <div class="flex flex-wrap gap-2">
+                        {% for responsabilidade in form.responsabilidades %}
+                            <label class="relative cursor-pointer">
+                                <input type="checkbox" name="{{ responsabilidade.name }}" value="{{ responsabilidade.choice_value }}" id="{{ responsabilidade.id_for_label }}" {% if responsabilidade.is_checked %}checked{% endif %} class="hidden responsabilidade-checkbox-input">
+                                <span class="responsabilidade-checkbox-label">{{ responsabilidade.choice_label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if form.responsabilidades.help_text %}
+                        <p class="text-sm text-gray-500 mt-1">{{ form.responsabilidades.help_text }}</p>
+                    {% endif %}
+                    {% if form.responsabilidades.errors %}
+                        {% for error in form.responsabilidades.errors %}
+                            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Is Chefia -->
+                <div class="flex items-center space-x-2">
+                    {{ form.is_chefia|add_class:"rounded border-gray-300 text-blue-600 focus:ring-blue-500" }}
+                    <label for="{{ form.is_chefia.id_for_label }}" class="text-gray-700 text-sm">
+                        {{ form.is_chefia.label }}
+                    </label>
+                </div>
+
+                <!-- Botões -->
+                <div class="flex space-x-4 pt-6 border-t border-gray-200">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition flex items-center space-x-2">
+                        <span>💾</span>
+                        <span>Atualizar Funcionário</span>
+                    </button>
+                    <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition flex items-center space-x-2">
+                        <span>❌</span>
+                        <span>Cancelar</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

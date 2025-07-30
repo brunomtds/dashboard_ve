@@ -9,28 +9,247 @@
     <a href="{% url 'logout' %}" class="text-sm hover:underline">Sair</a>
 {% endblock %}
 
+{% block extra_head %}
+    <style>
+        /* Animações personalizadas */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Animação escalonada para os cards */
+        .card-delay-1 { animation-delay: 0.1s; }
+        .card-delay-2 { animation-delay: 0.2s; }
+        .card-delay-3 { animation-delay: 0.3s; }
+        .card-delay-4 { animation-delay: 0.4s; }
+        
+        /* Cards com hover melhorado */
+        .dashboard-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .dashboard-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        /* Ícones dos cards */
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        /* Card desabilitado */
+        .dashboard-card-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        }
+        
+        .dashboard-card-disabled:hover {
+            transform: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-color: #e2e8f0;
+        }
+        
+        /* Estatísticas */
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <h2 class="text-2xl font-semibold mb-6">Bem-vindo, {{ user.first_name }}!</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card para Consulta de CEP -->
-        <a href="{% url 'ubs_consulta:consulta_cep' %}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition">
-            <h3 class="text-lg font-semibold mb-2">Consulta de UBS por CEP</h3>
-            <p class="text-gray-600">Digite um CEP para encontrar UBSs próximas.</p>
-        </a>
-        <!-- Busca Docs -->
-        <a href="{% url 'busca_docs:busca_documentos' %}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition">
-            <h3 class="text-lg font-semibold mb-2">Busca de Documentos</h3>
-            <p class="text-gray-600">Pesquise e acesse documentos do acervo digital.</p>
-        </a>
-        <!-- Funcionarios -->
-        <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition">
-            <h3 class="text-lg font-semibold mb-2">Quadro de Funcionarios</h3>
-            <p class="text-gray-600">Visualize o quadro de funcionários atual da VE.</p>
-        </a>       
-        <!-- Placeholder -->
-        <div class="bg-white p-6 rounded-lg shadow-md opacity-50">
-            <h3 class="text-lg font-semibold mb-2">Funcionalidade Futura</h3>
-            <p class="text-gray-600">Em breve!</p>
+    <div class="max-w-7xl mx-auto">
+        <!-- Cabeçalho do Dashboard -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">🧬 Dashboard Vigilância Epidemiológica</h1>
+            <p class="text-xl text-gray-600">Bem-vindo, <span class="font-semibold text-blue-600">{{ user.first_name|default:user.username }}</span>!</p>
+            <p class="text-gray-500 mt-2">Acesse as funcionalidades do sistema através dos cards abaixo</p>
+        </div>
+
+        <!-- Cards de Funcionalidades -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">🚀 Funcionalidades Disponíveis</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card para Consulta de CEP -->
+                <a href="{% url 'ubs_consulta:consulta_cep' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md animate-fade-in">
+                    <div class="text-center">
+                        <div class="card-icon">🏥</div>
+                        <h3 class="text-lg font-semibold mb-3 text-blue-800">Consulta de UBS por CEP</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Digite um CEP para encontrar UBSs próximas na sua região</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-blue-600 text-sm font-medium">
+                            Acessar consulta
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Busca Docs -->
+                <a href="{% url 'busca_docs:busca_documentos' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md animate-fade-in card-delay-1">
+                    <div class="text-center">
+                        <div class="card-icon">📚</div>
+                        <h3 class="text-lg font-semibold mb-3 text-blue-800">Busca de Documentos</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Pesquise e acesse documentos do acervo digital da instituição</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-blue-600 text-sm font-medium">
+                            Explorar documentos
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Funcionarios -->
+                <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md animate-fade-in card-delay-2">
+                    <div class="text-center">
+                        <div class="card-icon">👥</div>
+                        <h3 class="text-lg font-semibold mb-3 text-blue-800">Quadro de Funcionários</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed">Visualize e gerencie o quadro de funcionários da Vigilância Epidemiológica</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-blue-600 text-sm font-medium">
+                            Ver funcionários
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Placeholder para funcionalidades futuras -->
+                <div class="dashboard-card dashboard-card-disabled bg-white p-6 rounded-lg shadow-md animate-fade-in card-delay-3">
+                    <div class="text-center">
+                        <div class="card-icon">🚧</div>
+                        <h3 class="text-lg font-semibold mb-3 text-gray-600">Relatórios</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Geração de relatórios e análises estatísticas</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-gray-500 text-sm font-medium">
+                            Em desenvolvimento
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Placeholder 2 -->
+                <div class="dashboard-card dashboard-card-disabled bg-white p-6 rounded-lg shadow-md animate-fade-in card-delay-4">
+                    <div class="text-center">
+                        <div class="card-icon">📊</div>
+                        <h3 class="text-lg font-semibold mb-3 text-gray-600">Dashboard Analítico</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Visualização de dados e métricas em tempo real</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-gray-500 text-sm font-medium">
+                            Em breve
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Placeholder 3 -->
+                <div class="dashboard-card dashboard-card-disabled bg-white p-6 rounded-lg shadow-md animate-fade-in card-delay-4">
+                    <div class="text-center">
+                        <div class="card-icon">⚙️</div>
+                        <h3 class="text-lg font-semibold mb-3 text-gray-600">Configurações</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">Configurações do sistema e preferências do usuário</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <span class="inline-flex items-center text-gray-500 text-sm font-medium">
+                            Planejado
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé informativo -->
+        <div class="bg-blue-50 border border-blue-200 rounded-md p-6 animate-fade-in">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-blue-800">Sistema UBS Consulta</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <p class="mb-2">
+                            Este dashboard centraliza o acesso às principais funcionalidades do sistema de consulta de UBS e gestão de documentos da Vigilância Epidemiológica.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <h4 class="font-semibold mb-1">Funcionalidades Ativas:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-xs">
+                                    <li>Consulta de UBS por CEP</li>
+                                    <li>Busca de documentos digitais</li>
+                                    <li>Gestão de funcionários</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Em Desenvolvimento:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-xs">
+                                    <li>Sistema de relatórios</li>
+                                    <li>Dashboard analítico</li>
+                                    <li>Configurações avançadas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
+

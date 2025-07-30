@@ -1,14 +1,25 @@
 {% if page_obj.has_other_pages %}
-    <div class="flex justify-center space-x-2">
+    <div class="flex justify-center items-center space-x-3 mt-8">
         {% if page_obj.has_previous %}
-            <a href="#" data-page="{{ page_obj.previous_page_number }}" class="pagination-link px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Anterior</a>
+            <a href="#" data-page="{{ page_obj.previous_page_number }}" 
+               class="pagination-link px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center space-x-1">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <span>Anterior</span>
+            </a>
         {% endif %}
 
-        <span class="px-3 py-1 bg-blue-600 text-white rounded">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold shadow-md">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
 
         {% if page_obj.has_next %}
-            <a href="#" data-page="{{ page_obj.next_page_number }}" class="pagination-link px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Próxima &raquo;</a>
+            <a href="#" data-page="{{ page_obj.next_page_number }}" 
+               class="pagination-link px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center space-x-1">
+                <span>Próxima</span>
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            </a>
         {% endif %}
     </div>
 {% endif %}
+
 

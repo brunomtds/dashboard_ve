@@ -9,19 +9,46 @@
     <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="text-sm hover:underline">← Voltar para o Quadro</a>
 {% endblock %}
 
-{% block content %}
-<div class="bg-white rounded-lg shadow-md p-6 max-w-xl mx-auto text-center">
-    <h2 class="text-2xl font-semibold mb-4 text-red-600">Confirmar Exclusão</h2>
-    <p class="mb-6 text-gray-700">Tem certeza de que deseja excluir o funcionário <strong>{{ funcionario.nome }}</strong>?</p>
-
-    <form method="POST" class="flex justify-center space-x-4">
-        {% csrf_token %}
-        <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700">
-            🗑️ Excluir
-        </button>
-        <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600">
-            ❌ Cancelar
-        </a>
-    </form>
-</div>
+{% block extra_head %}
+    <style>
+        /* Animações e estilos globais */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    </style>
 {% endblock %}
+
+{% block content %}
+    <div class="max-w-xl mx-auto">
+        <!-- Cabeçalho da página -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">🗑️ Excluir Funcionário</h1>
+            <p class="text-gray-600">Confirme a exclusão de um colaborador</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 animate-fade-in text-center">
+            <h2 class="text-2xl font-semibold mb-4 text-red-600">Confirmar Exclusão</h2>
+            <p class="mb-6 text-gray-700 text-lg">
+                Tem certeza de que deseja excluir o funcionário 
+                <strong class="text-red-700">{{ funcionario.nome }}</strong>?
+                Esta ação não poderá ser desfeita.
+            </p>
+
+            <form method="POST" class="flex justify-center space-x-4 pt-4 border-t border-gray-200">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 transition flex items-center space-x-2">
+                    <span>🗑️</span>
+                    <span>Sim, Excluir</span>
+                </button>
+                <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="bg-gray-500 text-white px-6 py-3 rounded-md hover:bg-gray-600 transition flex items-center space-x-2">
+                    <span>❌</span>
+                    <span>Cancelar</span>
+                </a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+
