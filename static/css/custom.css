@@ -1,3 +1,79 @@
+.navbar-gradient {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%) !important;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+}
+/* Efeitos hover melhorados */
+.nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #60a5fa, #93c5fd);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+    color: #dbeafe;
+}
+
+/* Logo com efeito hover */
+.logo-container {
+    transition: all 0.3s ease;
+}            
+.logo-container:hover {
+    transform: scale(1.05);
+}
+
+/* Dropdown melhorado */
+.dropdown-menu {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Botão do usuário melhorado */
+.user-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.user-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Menu mobile melhorado */
+.mobile-menu {
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animação para ícones */
+.icon-rotate {
+    transition: transform 0.3s ease;
+}
+
+.icon-rotate.open {
+    transform: rotate(180deg);
+}
+
 body {
     /* Define a imagem de fundo */
     background-image: url('../img/bg_jundiai.png');
