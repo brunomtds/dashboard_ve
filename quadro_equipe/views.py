@@ -14,6 +14,7 @@ def quadro_funcionarios(request):
     departamento_id = request.GET.get('departamento', '')
     so_chefias = request.GET.get('so_chefias', '')
     responsabilidades_ids = request.GET.getlist('responsabilidades')
+    autocomplete = request.GET.get('autocomplete', '')  # Novo parâmetro para autocomplete
 
     funcionarios = Funcionario.objects.select_related('departamento').prefetch_related('responsabilidades').all()
 
@@ -35,11 +36,33 @@ def quadro_funcionarios(request):
 
     funcionarios = funcionarios.order_by('nome')
 
+    # Se for uma requisição de autocomplete, retorna apenas os dados dos funcionários
+    if autocomplete:
+        # Limita a 10 resultados para performance do autocomplete
+        funcionarios_autocomplete = funcionarios[:10]
+        
+        # Prepara os dados para JSON
+        funcionarios_data = []
+        for funcionario in funcionarios_autocomplete:
+            funcionarios_data.append({
+                'id': funcionario.id,
+                'nome': funcionario.nome,
+                'departamento': funcionario.departamento.nome if funcionario.departamento else 'Sem departamento',
+                'ramal': funcionario.ramal,
+                'is_chefia': funcionario.is_chefia,
+            })
+        
+        return JsonResponse({
+            'funcionarios': funcionarios_data,
+            'total': len(funcionarios_data)
+        })
+
+    # Paginação para requisições normais
     paginator = Paginator(funcionarios, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Se for uma requisição AJAX, retorna apenas os dados dos funcionários
+    # Se for uma requisição AJAX normal (não autocomplete), retorna apenas os dados dos funcionários
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         # Renderiza apenas a parte dos resultados
         resultados_html = render_to_string('quadro_equipe/partials/funcionarios_resultados.html', {
