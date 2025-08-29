@@ -175,3 +175,401 @@ body {
 .pagination-link:hover {
     background-color: #d1d5db;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Campo de busca melhorado */
+.search-input {
+    transition: all 0.3s ease;
+    border: 2px solid #e2e8f0;
+}
+
+.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+/* Cards com hover melhorado */
+.entidade-card,
+.bloco-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.entidade-card:hover,
+.bloco-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+/* Badges de tipo */
+.tipo-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.tipo-medico { 
+    background-color: #dbeafe; 
+    color: #1e40af; 
+}
+
+.tipo-estabelecimento { 
+    background-color: #dcfce7; 
+    color: #166534; 
+}
+
+.tipo-parteiro { 
+    background-color: #fef3c7; 
+    color: #92400e; 
+}
+
+.tipo-enfermeiro { 
+    background-color: #e0e7ff; 
+    color: #3730a3; 
+}
+
+.tipo-iml { 
+    background-color: #fce7f3; 
+    color: #be185d; 
+}
+
+/* Ícones de entidade */
+.icon-container {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-container-large {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-container-small {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-medico { 
+    background-color: #dbeafe; 
+}
+
+.icon-estabelecimento { 
+    background-color: #dcfce7; 
+}
+
+.icon-parteiro { 
+    background-color: #fef3c7; 
+}
+
+.icon-enfermeiro { 
+    background-color: #e0e7ff; 
+}
+
+.icon-iml { 
+    background-color: #fce7f3; 
+}
+
+.icon-do { 
+    background-color: #fee2e2; 
+}
+
+.icon-dnv { 
+    background-color: #dcfce7; 
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-do { 
+    background-color: #fee2e2; 
+    color: #991b1b; 
+}
+
+.status-dnv { 
+    background-color: #dcfce7; 
+    color: #166534; 
+}
+
+.status-disponivel { 
+    background-color: #dcfce7; 
+    color: #166534; 
+}
+
+.status-distribuida { 
+    background-color: #fef3c7; 
+    color: #92400e; 
+}
+
+.status-utilizada { 
+    background-color: #e0e7ff; 
+    color: #3730a3; 
+}
+
+.status-cancelada { 
+    background-color: #fee2e2; 
+    color: #991b1b; 
+}
+
+.status-verificar { 
+    background-color: #fef3c7; 
+    color: #92400e; 
+}
+
+.status-finalizada { 
+    background-color: #f3e8ff; 
+    color: #7c3aed; 
+}
+
+/* Status dots */
+.status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+}
+
+.status-dot.status-disponivel { 
+    background-color: #16a34a; 
+}
+
+.status-dot.status-distribuida { 
+    background-color: #eab308; 
+}
+
+.status-dot.status-utilizada { 
+    background-color: #3b82f6; 
+}
+
+.status-dot.status-cancelada { 
+    background-color: #dc2626; 
+}
+
+.status-dot.status-verificar { 
+    background-color: #f59e0b; 
+}
+
+/* Cards de fichas */
+.ficha-card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.ficha-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.ficha-card-extended {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.ficha-card-extended:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.ficha-card-finalizada {
+    background-color: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: all 0.2s ease;
+}
+
+.ficha-card-finalizada:hover {
+    border-color: #6b7280;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Variações de fichas por tipo */
+.ficha-do {
+    border-left: 4px solid #dc2626;
+}
+
+.ficha-dnv {
+    border-left: 4px solid #16a34a;
+}
+
+.ficha-disponivel {
+    border-left: 4px solid #16a34a;
+}
+
+.ficha-distribuida {
+    border-left: 4px solid #eab308;
+}
+
+.ficha-utilizada {
+    border-left: 4px solid #3b82f6;
+    background-color: #eff6ff;
+}
+
+.ficha-cancelada {
+    border-left: 4px solid #dc2626;
+    background-color: #fef2f2;
+}
+
+/* Formulários */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.form-help {
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.form-error {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #dc2626;
+}
+
+.form-error p {
+    margin: 0;
+}
+
+/* Estilização dos campos de formulário do Django */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input[type="text"].is-invalid,
+input[type="email"].is-invalid,
+input[type="number"].is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: #dc2626;
+}
+
+/* Select customizado */
+select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    appearance: none;
+}
+
+/* Responsividade para cards */
+@media (max-width: 768px) {
+    .entidade-card,
+    .bloco-card {
+        margin-bottom: 1rem;
+    }
+    
+    .ficha-card,
+    .ficha-card-extended,
+    .ficha-card-finalizada {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Melhorias para acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .entidade-card,
+    .bloco-card,
+    .ficha-card,
+    .ficha-card-extended,
+    .ficha-card-finalizada {
+        animation: none;
+        transition: none;
+    }
+}
+
+/* Estados de foco para acessibilidade */
+.entidade-card:focus-within,
+.bloco-card:focus-within {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Melhorias para impressão */
+@media print {
+    .entidade-card,
+    .bloco-card,
+    .ficha-card,
+    .ficha-card-extended,
+    .ficha-card-finalizada {
+        box-shadow: none;
+        border: 1px solid #000;
+        break-inside: avoid;
+    }
+    
+    .animate-fade-in {
+        animation: none;
+    }
+}

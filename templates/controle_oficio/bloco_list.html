@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Blocos de Fichas{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Cabeçalho da página -->
+        <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">📋 Blocos de Fichas</h1>
+                <p class="text-gray-600">Gerencie os blocos de fichas DO e DNV recebidos</p>
+            </div>
+            <div class="mt-4 sm:mt-0">
+                <a href="{% url 'bloco_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Novo Bloco
+                </a>
+            </div>
+        </div>
+
+        <!-- Estatísticas gerais -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total de Blocos</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ blocos|length }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-2 bg-red-100 rounded-lg">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Blocos DO</p>
+                        <p class="text-2xl font-semibold text-gray-900">
+                            {% for bloco in blocos %}{% if bloco.tipo == 'DO' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Blocos DNV</p>
+                        <p class="text-2xl font-semibold text-gray-900">
+                            {% for bloco in blocos %}{% if bloco.tipo == 'DNV' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total de Fichas</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ blocos|length|default:0|add:0|mul:30 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de blocos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for bloco in blocos %}
+                <div class="bloco-card bg-white p-6 rounded-lg shadow-md">
+                    
+                    <!-- Cabeçalho do card -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center mb-2">
+                                <span class="status-badge status-{{ bloco.tipo|lower }} mr-2">{{ bloco.get_tipo_display }}</span>
+                                <span class="text-sm text-gray-500">#{{ bloco.id }}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                Bloco {{ bloco.numero_inicial }}
+                            </h3>
+                        </div>
+                        <div class="ml-4">
+                            {% if bloco.tipo == 'DO' %}
+                                <div class="icon-container-small icon-do">
+                                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                            {% else %}
+                                <div class="icon-container-small icon-dnv">
+                                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Informações do bloco -->
+                    <div class="space-y-3 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                            </svg>
+                            <span class="font-medium">Número inicial:</span>
+                            <span class="ml-1 font-mono">{{ bloco.numero_inicial }}</span>
+                        </div>
+                        
+                        <div class="flex items-center text-sm text-gray-600">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4v10m6-10v10m-6-4h6"></path>
+                            </svg>
+                            <span class="font-medium">Fichas geradas:</span>
+                            <span class="ml-1">30 fichas</span>
+                        </div>
+                        
+                        <div class="flex items-center text-sm text-gray-600">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium">Recebido em:</span>
+                            <span class="ml-1">{{ bloco.data_recebimento|date:"d/m/Y H:i" }}</span>
+                        </div>
+
+                        <!-- Status das fichas do bloco -->
+                        <div class="pt-2 border-t border-gray-100">
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">Disponíveis:</span>
+                                    <span class="font-medium text-green-600">
+                                        {{ bloco.fichas.all|length }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-gray-600">Distribuídas:</span>
+                                    <span class="font-medium text-blue-600">
+                                        0
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="flex space-x-2">
+                        <a href="{% url 'bloco_detail' bloco.pk %}" 
+                           class="flex-1 bg-blue-50 text-blue-700 text-center py-2 px-3 rounded-md text-sm font-medium hover:bg-blue-100 transition-colors">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum bloco cadastrado</h3>
+                    <p class="mt-1 text-sm text-gray-500">Comece cadastrando um novo bloco de fichas.</p>
+                    <div class="mt-6">
+                        <a href="{% url 'bloco_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m-6 0h6m0-6h6"></path>
+                            </svg>
+                            Novo Bloco
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Rodapé informativo -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-blue-800">Informações sobre blocos</h3>
+                    <div class="mt-2 text-sm text-blue-700">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>Cada bloco gera automaticamente 30 fichas sequenciais</li>
+                            <li>Fichas DO têm 8 dígitos, fichas DNV têm 10 dígitos</li>
+                            <li>Clique em "Ver Detalhes" para visualizar todas as fichas do bloco</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

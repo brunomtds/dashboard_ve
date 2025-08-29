@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %}Novo Bloco de Fichas{% endblock %}
+
+{% block content %}
+    <div class="max-w-2xl mx-auto">
+        
+        <!-- Breadcrumb -->
+        <nav class="flex mb-6" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'bloco_list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+                        </svg>
+                        Blocos
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Novo Bloco</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Cabeçalho -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">📋 Novo Bloco de Fichas</h1>
+            <p class="text-gray-600">Cadastre um novo bloco que gerará 30 fichas automaticamente</p>
+        </div>
+
+        <!-- Formulário -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Tipo de Ficha -->
+                <div class="form-group">
+                    <label for="{{ form.tipo.id_for_label }}" class="form-label">
+                        {{ form.tipo.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.tipo }}
+                    {% if form.tipo.errors %}
+                        <div class="form-error">
+                            {% for error in form.tipo.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="form-help">
+                        Selecione o tipo de ficha:
+                        <br>• <strong>DO</strong> - Declaração de Óbito (8 dígitos)
+                        <br>• <strong>DNV</strong> - Declaração de Nascido Vivo (10 dígitos)
+                    </p>
+                </div>
+
+                <!-- Número Inicial -->
+                <div class="form-group">
+                    <label for="{{ form.numero_inicial.id_for_label }}" class="form-label">
+                        {{ form.numero_inicial.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.numero_inicial }}
+                    {% if form.numero_inicial.errors %}
+                        <div class="form-error">
+                            {% for error in form.numero_inicial.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="form-help">
+                        Digite apenas números (8 a 10 dígitos). Este será o número da primeira ficha do bloco.
+                        <br>As próximas 29 fichas serão geradas automaticamente em sequência.
+                    </p>
+                </div>
+
+                <!-- Informações sobre a geração -->
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800">Como funciona a geração</h3>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <p class="mb-2">Ao salvar este bloco, o sistema irá:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Gerar automaticamente 30 fichas sequenciais</li>
+                                    <li>Todas as fichas começarão com status "Disponível"</li>
+                                    <li>As fichas poderão ser distribuídas para entidades</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exemplo de numeração -->
+                <div class="bg-gray-50 border border-gray-200 rounded-md p-4" x-data="{ 
+                    numeroInicial: '{{ form.numero_inicial.value|default:'' }}',
+                    tipo: '{{ form.tipo.value|default:'DO' }}',
+                    get exemplos() {
+                        if (!this.numeroInicial || this.numeroInicial.length < 8) return [];
+                        const num = parseInt(this.numeroInicial);
+                        const tamanho = this.tipo === 'DO' ? 8 : 10;
+                        return [
+                            String(num).padStart(tamanho, '0'),
+                            String(num + 1).padStart(tamanho, '0'),
+                            String(num + 2).padStart(tamanho, '0'),
+                            '...',
+                            String(num + 29).padStart(tamanho, '0')
+                        ];
+                    }
+                }" 
+                @input="numeroInicial = $event.target.value" 
+                @change="tipo = $event.target.value">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Exemplo de numeração:</h4>
+                    <div class="text-sm text-gray-600">
+                        <template x-if="exemplos.length > 0">
+                            <div class="font-mono space-x-2">
+                                <template x-for="exemplo in exemplos" :key="exemplo">
+                                    <span x-text="exemplo" class="inline-block bg-white px-2 py-1 rounded border"></span>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="exemplos.length === 0">
+                            <p class="text-gray-500 italic">Digite um número inicial válido para ver o exemplo</p>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Botões de ação -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{% url 'bloco_list' %}" 
+                       class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Cancelar
+                    </a>
+                    
+                    <button type="submit" 
+                            class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Criar Bloco e Gerar Fichas
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Aviso importante -->
+        <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Atenção</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Certifique-se de que o número inicial está correto antes de salvar. Uma vez criado, o bloco não pode ser editado e as 30 fichas serão geradas automaticamente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

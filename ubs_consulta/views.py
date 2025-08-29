@@ -1,18 +1,20 @@
+# ubs_consulta/views.py
+
 import psycopg2
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import JsonResponse
 import logging
+from collections import defaultdict
 
 # Configurar logging para debug
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__ )
 
 @login_required
 def consulta_cep_view(request):
     resultados = []
     mensagem_erro = None
-    logradouros = []
     cep_input = request.GET.get('cep', '').strip()
 
     if cep_input:
@@ -35,34 +37,35 @@ def consulta_cep_view(request):
                 )
                 cursor = conn.cursor()
 
-                # Buscar logradouros
-                query_logradouro = """
-                    SELECT DISTINCT "LOGRADOURO", "BAIRRO"
+                # Query principal para buscar logradouros e códigos de UBS por bairro
+                query_logradouros_por_bairro = """
+                    SELECT "BAIRRO", "LOGRADOURO", "COD UBS"
                     FROM logradouros
                     WHERE "CEP" = %s
-                    ORDER BY "LOGRADOURO"
+                    ORDER BY "BAIRRO", "LOGRADOURO";
                 """
-                cursor.execute(query_logradouro, (cep_input,))
-                logradouro_result = cursor.fetchall()
+                cursor.execute(query_logradouros_por_bairro, (cep_input,))
+                logradouro_results = cursor.fetchall()
 
-                if not logradouro_result:
+                if not logradouro_results:
                     mensagem_erro = f"CEP {cep_input} não foi encontrado na base de dados de Jundiaí."
                 else:
-                    for logradouro, bairro in logradouro_result:
-                        # Buscar UBSs para cada logradouro
-                        query_cod_ubs = """
-                            SELECT DISTINCT "COD UBS"
-                            FROM logradouros
-                            WHERE "CEP" = %s AND "LOGRADOURO" = %s
-                        """
-                        cursor.execute(query_cod_ubs, (cep_input, logradouro))
-                        cod_ubs_list = cursor.fetchall()
+                    # Agrupa os resultados por bairro para processamento
+                    bairros_data = defaultdict(lambda: {'logradouros': set(), 'cod_ubs_set': set()})
+                    for bairro, logradouro, cod_ubs in logradouro_results:
+                        bairros_data[bairro]['logradouros'].add(logradouro)
+                        if cod_ubs:
+                            bairros_data[bairro]['cod_ubs_set'].add(cod_ubs)
 
+                    # Processa cada bairro para montar a lista de resultados
+                    for bairro, data in bairros_data.items():
+                        logradouro_nome = ", ".join(sorted(list(data['logradouros'])))
+                        cod_ubs_list = sorted(list(data['cod_ubs_set']))
+                        
                         ubs_list = []
                         tem_ubs_real = False
 
-                        for cod_ubs in cod_ubs_list:
-                            cod = cod_ubs[0]
+                        for cod in cod_ubs_list:
                             query_ubs = """
                                 SELECT "UNIDADE DE SAÚDE", "logradouro", "numero", "bairro", "telefone"
                                 FROM ubs
@@ -75,32 +78,22 @@ def consulta_cep_view(request):
                                 nome, logradouro_ubs, numero, bairro_ubs, telefone = ubs_info
 
                                 if nome == "SEM UNIDADE DESIGNADA":
-                                    continue  # pula, trata depois
+                                    continue
                                 else:
                                     tem_ubs_real = True
 
-                                # Formatação melhorada do telefone
+                                # Formatação do telefone
                                 if telefone:
                                     try:
                                         telefone_str = str(int(float(telefone)))
-                                        if len(telefone_str) >= 10:
-                                            tel_format = f"({telefone_str[:2]}) {telefone_str[2:6]}-{telefone_str[6:]}"
-                                        else:
-                                            tel_format = telefone_str
+                                        tel_format = f"({telefone_str[:2]}) {telefone_str[2:6]}-{telefone_str[6:]}" if len(telefone_str) >= 10 else telefone_str
                                     except (ValueError, TypeError):
                                         tel_format = "Não informado"
                                 else:
                                     tel_format = "Não informado"
 
-                                # Formatação melhorada do endereço
-                                endereco_parts = []
-                                if logradouro_ubs:
-                                    endereco_parts.append(logradouro_ubs)
-                                if numero:
-                                    endereco_parts.append(f"nº {numero}")
-                                if bairro_ubs:
-                                    endereco_parts.append(f"- {bairro_ubs}")
-                                
+                                # Formatação do endereço
+                                endereco_parts = [part for part in [logradouro_ubs, f"nº {numero}" if numero else None, f"- {bairro_ubs}" if bairro_ubs else None] if part]
                                 endereco_formatado = ", ".join(endereco_parts) if endereco_parts else "Endereço não informado"
 
                                 ubs_list.append({
@@ -114,17 +107,18 @@ def consulta_cep_view(request):
                                     "endereco": "Dados não disponíveis",
                                     "telefone": "Não informado"
                                 })
-
-                        # Se não há UBS real, adiciona mensagem padrão
-                        if not tem_ubs_real:
+                        
+                        # Se não houver UBS real, adiciona a mensagem padrão
+                        if not tem_ubs_real and not any(u['nome'] == "SEM UNIDADE DESIGNADA" for u in ubs_list):
                             ubs_list.append({
                                 "nome": "SEM UNIDADE DESIGNADA",
                                 "endereco": "Entre em contato com a Secretaria de Saúde para mais informações sobre o endereçamento desta região",
                                 "telefone": "Não informado"
                             })
 
-                        logradouros.append({
-                            "nome": logradouro,
+                        # Adiciona o card do bairro à lista de resultados
+                        resultados.append({
+                            "nome": logradouro_nome, # Agora pode ser mais de um logradouro por bairro
                             "bairro": bairro,
                             "ubs_list": ubs_list
                         })
@@ -141,21 +135,18 @@ def consulta_cep_view(request):
     # Se for requisição AJAX, retorne JSON
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         if mensagem_erro:
-            return JsonResponse({
-                'erro': mensagem_erro,
-                'cep_consultado': cep_input
-            })
+            return JsonResponse({'erro': mensagem_erro, 'cep_consultado': cep_input})
         else:
             return JsonResponse({
-                'resultados': logradouros,
-                'total_logradouros': len(logradouros),
-                'total_ubs': sum(len(log['ubs_list']) for log in logradouros),
+                'resultados': resultados,
+                'total_logradouros': len(resultados), # Agora representa o total de bairros
+                'total_ubs': sum(len(log['ubs_list']) for log in resultados),
                 'cep_consultado': cep_input
             })
 
     # Requisição normal: renderiza template
     context = {
-        'resultados': logradouros,
+        'resultados': resultados,
         'mensagem_erro': mensagem_erro,
         'cep_input': cep_input,
     }

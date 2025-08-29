@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'ubs_consulta',
     'busca_docs',
     'quadro_equipe',
+    'controle_oficio',
 ]
 
 MIDDLEWARE = [
