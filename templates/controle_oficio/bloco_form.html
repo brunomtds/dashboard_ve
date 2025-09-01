@@ -46,7 +46,9 @@
                         {{ form.tipo.label }}
                         <span class="text-red-500">*</span>
                     </label>
-                    {{ form.tipo }}
+                    <div class="form-input mt-1 block w-full p-3 rounded-md">
+                        {{ form.tipo }}
+                    </div>
                     {% if form.tipo.errors %}
                         <div class="form-error">
                             {% for error in form.tipo.errors %}

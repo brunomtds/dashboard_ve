@@ -34,7 +34,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Total de Blocos</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ blocos|length }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ total_blocos }}</p>
                     </div>
                 </div>
             </div>
@@ -48,9 +48,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Blocos DO</p>
-                        <p class="text-2xl font-semibold text-gray-900">
-                            {% for bloco in blocos %}{% if bloco.tipo == 'DO' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
-                        </p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ blocos_do_count }}</p>
                     </div>
                 </div>
             </div>
@@ -64,9 +62,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Blocos DNV</p>
-                        <p class="text-2xl font-semibold text-gray-900">
-                            {% for bloco in blocos %}{% if bloco.tipo == 'DNV' %}{{ forloop.counter0|add:1 }}{% endif %}{% endfor %}
-                        </p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ blocos_dnv_count }}</p>
                     </div>
                 </div>
             </div>
@@ -80,7 +76,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Total de Fichas</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ blocos|length|default:0|add:0|mul:30 }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ total_fichas }}</p>
                     </div>
                 </div>
             </div>
@@ -151,13 +147,13 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-gray-600">Disponíveis:</span>
                                     <span class="font-medium text-green-600">
-                                        {{ bloco.fichas.all|length }}
+                                        {{ bloco.fichas_disponiveis_count }}
                                     </span>
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-gray-600">Distribuídas:</span>
                                     <span class="font-medium text-blue-600">
-                                        0
+                                        {{ bloco.fichas_distribuidas_count }}
                                     </span>
                                 </div>
                             </div>

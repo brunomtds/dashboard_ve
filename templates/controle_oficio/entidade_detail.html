@@ -4,43 +4,67 @@
 
 {% block title %}{{ entidade.nome }} - Detalhes{% endblock %}
 
+{% block extra_head %}
+    <script src="{% static 'js/multiselect.js' %}" defer></script>
+{% endblock %}
+
 {% block content %}
     <div class="max-w-7xl mx-auto" x-data="{ 
         showFinalizadas: false, 
+        modalLoteDesfecho: false,
+        modalLoteTransferencia: false,
+        modalStatus: 'Utilizada',
         selectedFichas: [],
-        selectAll: false,
-        toggleAll() {
-            if (this.selectAll) {
-                this.selectedFichas = Array.from(document.querySelectorAll('input[name=fichas]:not(:disabled)')).map(input => input.value);
+
+        toggleFicha(id) {
+            const index = this.selectedFichas.indexOf(id);
+            if (index > -1) {
+                this.selectedFichas.splice(index, 1);
             } else {
-                this.selectedFichas = [];
+                this.selectedFichas.push(id);
+            }
+        },
+
+        isSelected(id) {
+            return this.selectedFichas.includes(id);
+        },
+
+        selectAllGroup(group) {
+            const groupIds = JSON.parse(document.getElementById(group).textContent);
+            const allSelected = groupIds.every(id => this.selectedFichas.includes(id));
+
+            if (allSelected) {
+                this.selectedFichas = this.selectedFichas.filter(id => !groupIds.includes(id));
+            } else {
+                groupIds.forEach(id => {
+                    if (!this.selectedFichas.includes(id)) {
+                        this.selectedFichas.push(id);
+                    }
+                });
             }
         }
     }">
+
+        {{ fichas_do_distribuidas_ids|json_script:"do-ids" }}
+        {{ fichas_dnv_distribuidas_ids|json_script:"dnv-ids" }}
         
-        <!-- Breadcrumb -->
         <nav class="flex mb-6" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
                     <a href="{% url 'entidade_list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-                        </svg>
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
                         Entidades
                     </a>
                 </li>
                 <li>
                     <div class="flex items-center">
-                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-                        </svg>
+                        <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
                         <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{{ entidade.nome }}</span>
                     </div>
                 </li>
             </ol>
         </nav>
 
-        <!-- Cabeçalho com informações da entidade -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="flex items-start justify-between">
                 <div class="flex items-start space-x-4">
@@ -106,6 +130,7 @@
 
         <!-- Estatísticas das fichas -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <div class="flex items-center">
                     <div class="p-2 bg-blue-100 rounded-lg">
@@ -114,12 +139,12 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Total de Fichas</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ entidade.fichas.count }}</p>
+                        <p class="text-sm font-medium text-gray-600">Fichas DO Atribuídas</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ fichas_do_distribuidas|length }}</p>
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <div class="flex items-center">
                     <div class="p-2 bg-green-100 rounded-lg">
@@ -128,8 +153,8 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Fichas DO</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ fichas_do|length }}</p>
+                        <p class="text-sm font-medium text-gray-600">DOs Utilizadas (últimos 30 dias)</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ do_30days_count }}</p>
                     </div>
                 </div>
             </div>
@@ -143,7 +168,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Fichas DNV</p>
-                        <p class="text-2xl font-semibold text-gray-900">{{ fichas_dnv|length }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ fichas_dnv_distribuidas|length }}</p>
                     </div>
                 </div>
             </div>
@@ -156,160 +181,225 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-600">Distribuídas</p>
-                        <p class="text-2xl font-semibold text-gray-900">
-                            {{ entidade.fichas.all|length }}
-                        </p>
+                        <p class="text-sm font-medium text-gray-600">DNVs Utilizadas (últimos 30 dias)</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ dnv_30days_count }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Seção de Fichas Ativas (Distribuídas) -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Distribuir Novas Fichas</h2>
+            <form action="{% url 'distribuir_fichas' entidade.id %}" method="post">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="fichas_disponiveis" class="block text-sm font-medium text-gray-700 mb-2">Fichas Disponíveis</label>
+                        <select multiple name="fichas" id="fichas_disponiveis" class="form-input mt-1 block w-full p-3 rounded-md" style="height: 150px;">
+                            {% for ficha in fichas_disponiveis %}
+                                <option value="{{ ficha.numero }}">{{ ficha.numero }} ({{ ficha.get_tipo_display }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fichas_selecionadas_preview" class="block text-sm font-medium text-gray-700 mb-2">Fichas Selecionadas (<span id="selected-count">0</span>)</label>
+                        <div id="fichas_selecionadas_preview" class="h-full border rounded-md p-2 overflow-y-auto bg-gray-50" style="height: 150px;"></div>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                        Distribuir Fichas
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div x-show="selectedFichas.length > 0" class="bg-white rounded-lg shadow-md p-4 mb-6 flex items-center justify-between" x-transition>
+            <div>
+                <span class="font-bold text-gray-800" x-text="selectedFichas.length"></span>
+                <span class="text-gray-600">ficha(s) selecionada(s)</span>
+            </div>
+            <div class="flex space-x-2">
+                <button @click="modalLoteTransferencia = true" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 shadow-md">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    Transferir
+                </button>
+                <button @click="modalLoteDesfecho = true" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md">
+                    <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Definir Desfecho
+                </button>
+            </div>
+        </div>
+
         <div class="bg-white rounded-lg shadow-md mb-6">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">Fichas Distribuídas</h2>
-                <p class="text-sm text-gray-600">Fichas atualmente com esta entidade</p>
+                <p class="text-sm text-gray-600">Clique nas fichas para selecionar e realizar ações em lote.</p>
             </div>
             
-            <!-- Fichas DO -->
-            {% if fichas_do %}
+            {% if fichas_do_distribuidas %}
                 <div class="p-6 border-b border-gray-100">
-                    <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center">
-                        <span class="status-badge status-do mr-2">DO</span>
-                        Declarações de Óbito ({{ fichas_do|length }})
-                    </h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-md font-medium text-gray-900 flex items-center">
+                            <span class="status-badge status-do mr-2">DO</span> Declarações de Óbito
+                        </h3>
+                        <button @click="selectAllGroup('do-ids')" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                            Selecionar Todas DO
+                        </button>
+                    </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {% for ficha in fichas_do %}
-                            {% if ficha.status == 'Distribuida' %}
-                                <div class="ficha-card ficha-do">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-sm">{{ ficha.numero }}</span>
-                                        <span class="status-dot status-{{ ficha.status|lower }}"></span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        {{ ficha.data_entrega|date:"d/m/Y" }}
-                                    </div>
+                        {% for ficha in fichas_do_distribuidas %}
+                            <div @click="toggleFicha({{ ficha.id }})" 
+                                 :class="{ 'ring-2 ring-offset-2 ring-blue-600 shadow-lg': isSelected({{ ficha.id }}) }"
+                                 class="ficha-card-actionable ficha-do relative transition-all duration-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono text-sm">{{ ficha.numero }}</span>
                                 </div>
-                            {% endif %}
+                                <div class="text-xs text-gray-500 mt-1">
+                                    {{ ficha.data_entrega|date:"d/m/Y" }}
+                                </div>
+                                <div x-show="isSelected({{ ficha.id }})" class="absolute top-1 right-1 bg-blue-600 text-white rounded-full h-4 w-4 flex items-center justify-center" x-transition>
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
                         {% endfor %}
                     </div>
                 </div>
             {% endif %}
 
-            <!-- Fichas DNV -->
-            {% if fichas_dnv %}
-                <div class="p-6">
-                    <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center">
-                        <span class="status-badge status-dnv mr-2">DNV</span>
-                        Declarações de Nascido Vivo ({{ fichas_dnv|length }})
-                    </h3>
+            {% if fichas_dnv_distribuidas %}
+                 <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-md font-medium text-gray-900 flex items-center">
+                            <span class="status-badge status-dnv mr-2">DNV</span> Declarações de Nascido Vivo
+                        </h3>
+                        <button @click="selectAllGroup('dnv-ids')" class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                            Selecionar Todas DNV
+                        </button>
+                    </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {% for ficha in fichas_dnv %}
-                            {% if ficha.status == 'Distribuida' %}
-                                <div class="ficha-card ficha-dnv">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono text-sm">{{ ficha.numero }}</span>
-                                        <span class="status-dot status-{{ ficha.status|lower }}"></span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        {{ ficha.data_entrega|date:"d/m/Y" }}
-                                    </div>
+                        {% for ficha in fichas_dnv_distribuidas %}
+                            <div @click="toggleFicha({{ ficha.id }})" 
+                                 :class="{ 'ring-2 ring-offset-2 ring-blue-600 shadow-lg': isSelected({{ ficha.id }}) }"
+                                 class="ficha-card-actionable ficha-dnv relative transition-all duration-200">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-mono text-sm">{{ ficha.numero }}</span>
                                 </div>
-                            {% endif %}
+                                <div class="text-xs text-gray-500 mt-1">
+                                    {{ ficha.data_entrega|date:"d/m/Y" }}
+                                </div>
+                                <div x-show="isSelected({{ ficha.id }})" class="absolute top-1 right-1 bg-blue-600 text-white rounded-full h-4 w-4 flex items-center justify-center" x-transition>
+                                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
                         {% endfor %}
                     </div>
-                </div>
-            {% endif %}
-
-            {% if not fichas_do and not fichas_dnv %}
-                <div class="p-6 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma ficha distribuída</h3>
-                    <p class="mt-1 text-sm text-gray-500">Esta entidade ainda não possui fichas distribuídas.</p>
                 </div>
             {% endif %}
         </div>
 
-        <!-- Botão para mostrar fichas finalizadas -->
         <div class="mb-6">
             <button @click="showFinalizadas = !showFinalizadas" 
                     class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                </svg>
                 <span x-text="showFinalizadas ? 'Ocultar Fichas Finalizadas' : 'Ver Fichas Finalizadas'"></span>
-                <svg class="h-4 w-4 ml-2 transform transition-transform" :class="{ 'rotate-180': showFinalizadas }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
             </button>
         </div>
 
-        <!-- Seção de Fichas Finalizadas (Utilizadas/Canceladas) -->
         <div x-show="showFinalizadas" x-transition class="bg-white rounded-lg shadow-md mb-6">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">Fichas Finalizadas</h2>
-                <p class="text-sm text-gray-600">Fichas utilizadas ou canceladas com data de desfecho</p>
             </div>
             
-            <!-- Fichas DO Finalizadas -->
+            {% if fichas_do_finalizadas %}
             <div class="p-6 border-b border-gray-100">
                 <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center">
-                    <span class="status-badge status-do mr-2">DO</span>
-                    Declarações de Óbito Finalizadas
+                    <span class="status-badge status-do mr-2">DO</span> Declarações de Óbito Finalizadas
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {% for ficha in fichas_do %}
-                        {% if ficha.status == 'Utilizada' or ficha.status == 'Cancelada' %}
-                            <div class="ficha-card-finalizada ficha-{{ ficha.status|lower }}">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-mono text-sm font-medium">{{ ficha.numero }}</span>
-                                    <span class="status-badge status-{{ ficha.status|lower }}">{{ ficha.status }}</span>
-                                </div>
-                                <div class="text-xs text-gray-600 space-y-1">
-                                    <div>Distribuída: {{ ficha.data_entrega|date:"d/m/Y" }}</div>
-                                    {% if ficha.data_desfecho %}
-                                        <div>Desfecho: {{ ficha.data_desfecho|date:"d/m/Y" }}</div>
-                                    {% endif %}
-                                    {% if ficha.desfecho_por %}
-                                        <div>Por: {{ ficha.desfecho_por.first_name|default:ficha.desfecho_por.username }}</div>
-                                    {% endif %}
-                                </div>
+                    {% for ficha in fichas_do_finalizadas %}
+                        <div class="ficha-card-finalizada ficha-{{ ficha.status|lower }}">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-sm font-medium">{{ ficha.numero }}</span>
+                                <span class="status-badge status-{{ ficha.status|lower }}">{{ ficha.status }}</span>
                             </div>
-                        {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
 
-            <!-- Fichas DNV Finalizadas -->
+            {% if fichas_dnv_finalizadas %}
             <div class="p-6">
                 <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center">
-                    <span class="status-badge status-dnv mr-2">DNV</span>
-                    Declarações de Nascido Vivo Finalizadas
+                    <span class="status-badge status-dnv mr-2">DNV</span> Declarações de Nascido Vivo Finalizadas
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {% for ficha in fichas_dnv %}
-                        {% if ficha.status == 'Utilizada' or ficha.status == 'Cancelada' %}
-                            <div class="ficha-card-finalizada ficha-{{ ficha.status|lower }}">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-mono text-sm font-medium">{{ ficha.numero }}</span>
-                                    <span class="status-badge status-{{ ficha.status|lower }}">{{ ficha.status }}</span>
-                                </div>
-                                <div class="text-xs text-gray-600 space-y-1">
-                                    <div>Distribuída: {{ ficha.data_entrega|date:"d/m/Y" }}</div>
-                                    {% if ficha.data_desfecho %}
-                                        <div>Desfecho: {{ ficha.data_desfecho|date:"d/m/Y" }}</div>
-                                    {% endif %}
-                                    {% if ficha.desfecho_por %}
-                                        <div>Por: {{ ficha.desfecho_por.first_name|default:ficha.desfecho_por.username }}</div>
-                                    {% endif %}
-                                </div>
+                    {% for ficha in fichas_dnv_finalizadas %}
+                        <div class="ficha-card-finalizada ficha-{{ ficha.status|lower }}">
+                             <div class="flex items-center justify-between mb-2">
+                                <span class="font-mono text-sm font-medium">{{ ficha.numero }}</span>
+                                <span class="status-badge status-{{ ficha.status|lower }}">{{ ficha.status }}</span>
                             </div>
-                        {% endif %}
+                        </div>
                     {% endfor %}
                 </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-6">
+            <button @click="showFinalizadas = !showFinalizadas" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                <span x-text="showFinalizadas ? 'Ocultar Fichas Finalizadas' : 'Ver Fichas Finalizadas'"></span>
+            </button>
+        </div>
+        <div x-show="showFinalizadas" x-transition class="bg-white rounded-lg shadow-md mb-6">
+             </div>
+
+        <div x-show="modalLoteDesfecho" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50" x-transition style="display: none;">
+            <div @click.away="modalLoteDesfecho = false" class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <form action="{% url 'dar_desfecho_em_lote' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="entidade_id" value="{{ entidade.id }}">
+                    <template x-for="id in selectedFichas" :key="id"><input type="hidden" name="ficha_ids" :value="id"></template>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">Finalizar Fichas em Lote</h2>
+                    <p class="text-gray-600 mb-4">Você está dando um desfecho para <strong x-text="selectedFichas.length"></strong> ficha(s).</p>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Selecione o novo status:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer flex-1" :class="{ 'bg-blue-50 border-blue-400': modalStatus === 'Utilizada' }"><input type="radio" name="status" value="Utilizada" x-model="modalStatus"><span class="ml-3">Utilizada</span></label>
+                            <label class="flex items-center p-3 border rounded-lg cursor-pointer flex-1" :class="{ 'bg-red-50 border-red-400': modalStatus === 'Cancelada' }"><input type="radio" name="status" value="Cancelada" x-model="modalStatus"><span class="ml-3">Cancelada</span></label>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" @click="modalLoteDesfecho = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">Confirmar Desfecho</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div x-show="modalLoteTransferencia" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50" x-transition style="display: none;">
+            <div @click.away="modalLoteTransferencia = false" class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <form action="{% url 'transferir_fichas_em_lote' %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="entidade_origem_id" value="{{ entidade.id }}">
+                    <template x-for="id in selectedFichas" :key="id"><input type="hidden" name="ficha_ids" :value="id"></template>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">Transferir Fichas em Lote</h2>
+                    <p class="text-gray-600 mb-4">Você está transferindo <strong x-text="selectedFichas.length"></strong> ficha(s).</p>
+                    <div class="mb-6">
+                        <label for="nova_entidade_id" class="block text-sm font-medium text-gray-700 mb-2">Selecione a nova entidade de destino:</label>
+                        <select name="nova_entidade_id" id="nova_entidade_id" class="form-select block w-full mt-1" required>
+                            <option value="" disabled selected>-- Escolha uma entidade --</option>
+                            {% for outra_entidade in outras_entidades %}
+                                <option value="{{ outra_entidade.pk }}">{{ outra_entidade.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" @click="modalLoteTransferencia = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 font-semibold">Confirmar Transferência</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -573,3 +573,23 @@ select {
         animation: none;
     }
 }
+
+/* Variação de card de ficha para ser usado como botão */
+.ficha-card-actionable {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    /* Herda as bordas laterais coloridas, ex: .ficha-do */
+    border: 1px solid #e5e7eb;
+}
+
+.ficha-card-actionable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border-color: #3b82f6; /* Azul para indicar interatividade */
+}
