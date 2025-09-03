@@ -1,0 +1,56 @@
+<div class="bg-white rounded-lg shadow-md mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-bold text-gray-900">Gerenciamento de Fichas da Entidade</h2>
+        <p class="text-sm text-gray-600 mt-1">Selecione as fichas abaixo para transferir ou dar desfecho.</p>
+    </div>
+    
+    {% if fichas_do_distribuidas %}
+        <div class="p-6 border-b border-gray-100">
+            <h3 class="text-md font-medium text-gray-900 flex items-center mb-4">
+                <span class="status-badge status-do mr-2">DO</span> Declarações de Óbito Distribuídas
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {% for ficha in fichas_do_distribuidas %}
+                    <div @click="toggleFicha({{ ficha.id }}, 'gerenciar')" 
+                         :class="{ 'ring-2 ring-offset-2 ring-blue-600 shadow-lg': isSelected({{ ficha.id }}, 'gerenciar') }"
+                         class="ficha-card-actionable ficha-do relative transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm">{{ ficha.numero }}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ ficha.data_entrega|date:"d/m/Y" }}
+                        </div>
+                        <div x-show="isSelected({{ ficha.id }}, 'gerenciar')" class="absolute top-1 right-1 bg-blue-600 text-white rounded-full h-4 w-4 flex items-center justify-center" x-transition>
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if fichas_dnv_distribuidas %}
+         <div class="p-6">
+            <h3 class="text-md font-medium text-gray-900 flex items-center mb-4">
+                <span class="status-badge status-dnv mr-2">DNV</span> Declarações de Nascido Vivo Distribuídas
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {% for ficha in fichas_dnv_distribuidas %}
+                    <div @click="toggleFicha({{ ficha.id }}, 'gerenciar')" 
+                         :class="{ 'ring-2 ring-offset-2 ring-blue-600 shadow-lg': isSelected({{ ficha.id }}, 'gerenciar') }"
+                         class="ficha-card-actionable ficha-dnv relative transition-all duration-200">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-sm">{{ ficha.numero }}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ ficha.data_entrega|date:"d/m/Y" }}
+                        </div>
+                        <div x-show="isSelected({{ ficha.id }}, 'gerenciar')" class="absolute top-1 right-1 bg-blue-600 text-white rounded-full h-4 w-4 flex items-center justify-center" x-transition>
+                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>

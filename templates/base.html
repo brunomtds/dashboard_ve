@@ -7,6 +7,8 @@
     <title>{% block title %}DASHBOARD VE{% endblock %}</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+
     
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>   
 
@@ -61,11 +63,16 @@
                         <circle cx="10" cy="6" r="3"/>
                         <circle cx="17" cy="8" r="2.5"/>
                         </svg>
-
-
                         <span>Funcionários</span>
                     </a>
-                    
+
+                    <a href="{% url 'controle_oficio_dashboard' %}" class="nav-link flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/10 transition-all">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        <span>Controle DO/DNV</span>
+                    </a>
+
                     <!-- Dropdown do Usuário -->
                     <div class="relative ml-4" x-data="{ open: false }" @click.away="open = false">
                         <button @click="open = !open" class="user-button flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium">
@@ -155,12 +162,22 @@
                             </a>
                             
                             <a href="{% url 'quadro_equipe:quadro_funcionarios' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/>
+                                <circle cx="10" cy="6" r="3"/>
+                                <circle cx="17" cy="8" r="2.5"/>
                                 </svg>
                                 <span>Funcionários</span>
                             </a>
+
+                            <a href="{% url 'controle_oficio_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                </svg>
+                                <span>Controle DO/DNV</span>
+                            </a>
                             
+                            <!-->
                             <div class="border-t border-white/20 mt-2 pt-2">
                                 <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,6 +185,7 @@
                                     </svg>
                                     <span>Meu Perfil</span>
                                 </a>
+                            -->
                                 
                                 <a href="{% url 'password_change' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 transition-colors">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,6 +254,8 @@
             }
         </script>
     {% endblock extra_scripts %}
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 </body>
 </html>
 

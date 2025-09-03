@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 
 urlpatterns = [
     # ENTIDADES
-    path('', lambda request: redirect('entidade_list')),
+    path("", views.dashboard_view, name="controle_oficio_dashboard"),
     path("entidades/", views.EntidadeListView.as_view(), name="entidade_list"),
     path("entidades/nova/", views.EntidadeCreateView.as_view(), name="entidade_create"),
     path("entidades/<int:pk>/editar/", views.EntidadeUpdateView.as_view(), name="entidade_update"),

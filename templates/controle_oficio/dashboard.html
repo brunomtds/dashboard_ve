@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Controle de Ofício{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Estilos para o painel de filtro deslizante */
+    .filter-panel-backdrop { background-color: rgba(17, 24, 39, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+    .filter-panel { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+    .filter-panel-header { border-bottom: 1px solid #e5e7eb; }
+    .filter-checkbox-label:hover { background-color: #eff6ff; }
+    .filter-checkbox-label input:checked + span { font-weight: 600; color: #1e40af; }
+    .month-accordion-header { transition: background-color 0.2s ease-in-out; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="max-w-7xl mx-auto" x-data="{ 
+    showFilters: false,
+    openMonths: [], 
+    
+    // Função para selecionar/desselecionar todas as datas de um mês
+    toggleMonth(monthDates, event) {
+        const isChecked = event.target.checked;
+        const form = event.target.closest('form');
+
+        monthDates.forEach(dateStr => {
+            // Encontra o checkbox correspondente a cada data do mês
+            const checkbox = form.querySelector(`input[name='datas'][value='${dateStr}']`);
+            if (checkbox && checkbox.checked !== isChecked) {
+                checkbox.checked = isChecked;
+            }
+        });
+
+        // Dispara o evento 'change' no formulário para o HTMX atualizar os dados
+        form.dispatchEvent(new Event('change'));
+    }
+}">
+    
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between text-center sm:text-left">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">📑 Dashboard de Controle de Ofícios</h1>
+            <p class="text-xl text-gray-600">Bem-vindo, <span class="font-semibold text-blue-600">{{ user.first_name|default:user.username }}</span>!</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <button @click="showFilters = true" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg class="h-5 w-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zM3 16a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z"></path></svg>
+                Filtros
+            </button>
+        </div>
+    </div>
+
+    <div x-show="showFilters" x-cloak class="fixed inset-0 z-50" style="display: none;">
+        <div @click="showFilters = false" x-show="showFilters" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="absolute inset-0 filter-panel-backdrop"></div>
+        
+        <div x-show="showFilters" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="relative bg-white w-full max-w-sm h-full filter-panel flex flex-col">
+            <div class="filter-panel-header flex items-center justify-between p-4"><h3 class="text-xl font-semibold text-gray-800">Filtros</h3><button @click="showFilters = false" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-600"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>
+            
+            <div class="flex-1 overflow-y-auto p-6">
+                <form hx-get="{% url 'controle_oficio_dashboard' %}" hx-target="#stats-container" hx-swap="outerHTML" hx-trigger="change delay:500ms">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3">Filtrar por Data de Recebimento</h4>
+                    <div class="space-y-1">
+                        {% for group in grouped_dates %}
+                        <div class="border border-gray-200 rounded-lg">
+                            <div @click.prevent="openMonths.includes('{{ group.month_year_display }}') ? openMonths = openMonths.filter(m => m !== '{{ group.month_year_display }}') : openMonths.push('{{ group.month_year_display }}')" class="month-accordion-header w-full flex justify-between items-center p-3 text-left hover:bg-gray-50 cursor-pointer">
+                                <span class="font-semibold text-sm text-gray-700">{{ group.month_year_display }}</span>
+                                <svg class="w-5 h-5 text-gray-500 transform transition-transform" :class="{ 'rotate-180': openMonths.includes('{{ group.month_year_display }}') }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </div>
+                            <div x-show="openMonths.includes('{{ group.month_year_display }}')" x-transition class="p-3 border-t border-gray-200 space-y-1">
+                                <label @click.stop class="filter-checkbox-label flex items-center space-x-3 p-2 rounded-lg cursor-pointer font-medium bg-gray-100 border-b border-gray-200">
+                                    <input 
+                                        type="checkbox" 
+                                        @change="toggleMonth([{% for date in group.dates %}'{{ date|date:'Y-m-d' }}'{% if not forloop.last %},{% endif %}{% endfor %}], $event)"
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    >
+                                    <span class="text-sm text-gray-800">Selecionar Mês Inteiro</span>
+                                </label>
+                                {% for date in group.dates %}
+                                <label class="filter-checkbox-label flex items-center space-x-3 p-2 rounded-lg cursor-pointer">
+                                    <input type="checkbox" name="datas" value="{{ date|date:'Y-m-d' }}" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" {% if date|date:'Y-m-d' in selected_dates %}checked{% endif %}>
+                                    <span class="text-sm text-gray-700">{{ date|date:"d/m/Y" }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 px-2">Nenhuma data de recebimento encontrada.</p>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+            {% if selected_dates %}
+            <div class="p-4 border-t border-gray-200">
+                <a href="{% url 'controle_oficio_dashboard' %}" class="w-full text-center block px-4 py-2 bg-gray-100 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-200">Limpar Filtro</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        {% include 'controle_oficio/partials/dashboard_stats.html' %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a href="{% url 'entidade_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md"><div class="text-center"><div class="card-icon">🏥</div><h3 class="text-lg font-semibold mb-3 text-blue-800">Gerenciar Entidades</h3><p class="text-gray-600 text-sm leading-relaxed">Visualize, edite e distribua fichas para as entidades cadastradas</p></div><div class="mt-4 text-center"><span class="inline-flex items-center text-blue-600 text-sm font-medium">Acessar Entidades<svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span></div></a>
+            <a href="{% url 'bloco_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md"><div class="text-center"><div class="card-icon">📋</div><h3 class="text-lg font-semibold mb-3 text-blue-800">Gerenciar Blocos</h3><p class="text-gray-600 text-sm leading-relaxed">Consulte os blocos de fichas recebidos e veja o status de cada um</p></div><div class="mt-4 text-center"><span class="inline-flex items-center text-blue-600 text-sm font-medium">Acessar Blocos<svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span></div></a>
+            <div class="dashboard-card dashboard-card-disabled bg-white p-6 rounded-lg shadow-md"><div class="text-center"><div class="card-icon">📊</div><h3 class="text-lg font-semibold mb-3 text-gray-600">Relatórios</h3><p class="text-gray-500 text-sm leading-relaxed">Gere relatórios detalhados de distribuição, uso e estoque</p></div><div class="mt-4 text-center"><span class="inline-flex items-center text-gray-500 text-sm font-medium">Em breve</span></div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

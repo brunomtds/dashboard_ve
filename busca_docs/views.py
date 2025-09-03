@@ -94,6 +94,7 @@ def busca_documentos(request):
         'tags_selecionadas': tags_selecionadas,
         'filtros_aplicados': filtros_aplicados,
         'total_resultados': documentos.count() if filtros_aplicados else sum(len(docs) for docs in documentos_agrupados.values()),
+        'active_page': 'busca_documentos',
     }
     
     return render(request, 'busca_docs/busca_documentos.html', context)

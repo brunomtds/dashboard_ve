@@ -1,0 +1,38 @@
+<div x-show="modalConfirmarDistribuicao" 
+     class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 z-50"
+     x-transition style="display: none;">
+
+    <div @click.away="modalConfirmarDistribuicao = false" 
+         class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+        
+        <form action="{% url 'distribuir_fichas' entidade_id=entidade.id %}" method="POST">
+            {% csrf_token %}
+
+            <template x-for="id in fichasParaDistribuir" :key="id">
+                <input type="hidden" name="fichas_ids" :value="id">
+            </template>
+            
+            <h2 class="text-xl font-bold text-gray-900 mb-2">Confirmar Distribuição</h2>
+            <p class="text-gray-600 mb-4">
+                As seguintes <strong class="font-mono bg-gray-100 px-2 py-1 rounded" x-text="fichasParaDistribuir.length"></strong> ficha(s) serão distribuídas para <strong>{{ entidade.nome }}</strong>.
+            </p>
+
+            <div class="max-h-60 overflow-y-auto border rounded-lg p-3 bg-gray-50 mb-6">
+                <div class="grid grid-cols-4 gap-2">
+                    <template x-for="id in fichasParaDistribuir" :key="id">
+                        <span x-text="getFichaNumeroById(id)" class="font-mono text-sm bg-white text-center p-1 border rounded"></span>
+                    </template>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <button type="button" @click="modalConfirmarDistribuicao = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md">
+                    Confirmar e Distribuir
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

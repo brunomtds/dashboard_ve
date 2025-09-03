@@ -127,6 +127,51 @@ body {
     outline: none;
 }
 
+.form-select {
+    /* Aparência e espaçamento */
+    display: block;
+    width: 100%;
+    padding: 0.75rem; /* 12px */
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    color: #1f2937; /* cinza escuro para o texto */
+    background-color: #fff;
+    
+    /* Borda e cantos arredondados */
+    border: 2px solid #e5e7eb; /* cinza claro */
+    border-radius: 0.5rem; /* 8px */
+
+    /* Transição suave para o foco */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    
+    /* Esconde a seta padrão do navegador */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    /* Adiciona nossa seta customizada (um SVG) como imagem de fundo */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 3rem; /* Espaço extra à direita para não sobrepor a seta */
+}
+
+/* Estilo para quando o select está focado (clicado) */
+.form-select:focus {
+    outline: none; /* Remove a borda de foco padrão */
+    border-color: #3b82f6; /* Borda azul, combinando com seu tema */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); /* Sombra/brilho azul suave */
+}
+
+/* Estilo para o campo desabilitado */
+.form-select:disabled {
+    background-color: #f3f4f6;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+
 /* Estilo para checkboxes de responsabilidades */
 .responsabilidade-checkbox-label {
     transition: all 0.2s ease;
@@ -592,4 +637,109 @@ select {
     transform: translateY(-2px);
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     border-color: #3b82f6; /* Azul para indicar interatividade */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Animação escalonada para os cards */
+.card-delay-1 { animation-delay: 0.1s; }
+.card-delay-2 { animation-delay: 0.2s; }
+.card-delay-3 { animation-delay: 0.3s; }
+.card-delay-4 { animation-delay: 0.4s; }
+
+/* Cards com hover melhorado */
+.dashboard-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: #3b82f6;
+}
+
+.dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Ícones dos cards */
+.card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Card desabilitado */
+.dashboard-card-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.dashboard-card-disabled:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-color: #e2e8f0;
+}
+
+/* Estatísticas */
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.search-select {
+    transition: all 0.3s ease;
+    border: 2px solid #e2e8f0;
+}
+
+.search-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+
+.nav-link-active {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    font-weight: 600; /* semi-bold */
+}
+
+.nav-link-active::before {
+    width: 60%; /* Deixa o sublinhado permanente visível */
 }

@@ -1,6 +1,8 @@
+import locale
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.urls import reverse_lazy
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from collections import defaultdict
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
@@ -8,6 +10,13 @@ from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
+from .forms import EntidadeForm
+
+# Isso garante que a formatação de datas, como nomes de meses, use o idioma correto.
+try:
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, 'portuguese') # Alternativa para Windows
 
 from .models import Bloco, Entidade, Ficha
 
@@ -37,14 +46,14 @@ class EntidadeListView(ListView):
 
 class EntidadeCreateView(CreateView):
     model = Entidade
-    fields = ['tipo', 'tipo_documento', 'numero_documento', 'nome', 'responsavel_tecnico']
+    form_class = EntidadeForm
     template_name = 'controle_oficio/entidade_form.html'
     success_url = reverse_lazy('entidade_list')
 
 
 class EntidadeUpdateView(UpdateView):
     model = Entidade
-    fields = ['tipo', 'tipo_documento', 'numero_documento', 'nome', 'responsavel_tecnico']
+    form_class = EntidadeForm
     template_name = 'controle_oficio/entidade_form.html'
     success_url = reverse_lazy('entidade_list')
 
@@ -57,42 +66,71 @@ class EntidadeDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        # --- 1. DADOS BASE ---
         fichas_entidade = self.object.fichas.all().order_by('numero')
+        
+        # --- 2. LÓGICA PARA ESTATÍSTICAS DE 30 DIAS ---
+        data_limite = timezone.now() - timedelta(days=30)
+        
+        dnv_recent_use = fichas_entidade.filter(tipo='DNV', data_desfecho__gte=data_limite)
+        context['dnv_30days_count'] = dnv_recent_use.count()
 
-        # Separa fichas por tipo E por status
+        do_recent_use = fichas_entidade.filter(tipo='DO', data_desfecho__gte=data_limite)
+        context['do_30days_count'] = do_recent_use.count()
+
+        # --- 3. LÓGICA DE AGRUPAMENTO OTIMIZADA (CORRIGIDA) ---
+        # Busca todas as fichas disponíveis já com os dados do bloco (select_related).
+        fichas_disponiveis = Ficha.objects.filter(status='Disponível').select_related('bloco').order_by('bloco__numero_inicial', 'numero')
+
+        # Cria dicionários para agrupar as fichas por objeto de bloco.
+        blocos_do_agrupados = {}
+        blocos_dnv_agrupados = {}
+
+        for ficha in fichas_disponiveis:
+            if ficha.tipo == 'DO':
+                if ficha.bloco not in blocos_do_agrupados:
+                    blocos_do_agrupados[ficha.bloco] = []
+                blocos_do_agrupados[ficha.bloco].append(ficha)
+            elif ficha.tipo == 'DNV':
+                if ficha.bloco not in blocos_dnv_agrupados:
+                    blocos_dnv_agrupados[ficha.bloco] = []
+                blocos_dnv_agrupados[ficha.bloco].append(ficha)
+
+        # Transforma os dicionários na estrutura de lista que o template espera.
+        grupos_do = []
+        for bloco, fichas_do_bloco in blocos_do_agrupados.items():
+            grupos_do.append({
+                'bloco': bloco,
+                'fichas_disponiveis': fichas_do_bloco,
+                'ficha_ids': [f.id for f in fichas_do_bloco]
+            })
+
+        grupos_dnv = []
+        for bloco, fichas_dnv_bloco in blocos_dnv_agrupados.items():
+            grupos_dnv.append({
+                'bloco': bloco,
+                'fichas_disponiveis': fichas_dnv_bloco,
+                'ficha_ids': [f.id for f in fichas_dnv_bloco]
+            })
+        
+        context['grupos_do'] = grupos_do
+        context['grupos_dnv'] = grupos_dnv
+
+        # --- 4. DADOS PARA A LISTAGEM DE FICHAS DA ENTIDADE ---
         context['fichas_do_distribuidas'] = fichas_entidade.filter(tipo='DO', status='Distribuida')
         context['fichas_dnv_distribuidas'] = fichas_entidade.filter(tipo='DNV', status='Distribuida')
         context['fichas_do_distribuidas_ids'] = list(context['fichas_do_distribuidas'].values_list('id', flat=True))
         context['fichas_dnv_distribuidas_ids'] = list(context['fichas_dnv_distribuidas'].values_list('id', flat=True))
-
-        # Lógica de fichas finalizadas (para a lista expansível)
-        context['fichas_do_finalizadas'] = fichas_entidade.filter(tipo='DO').exclude(status='Distribuida')
-        context['fichas_dnv_finalizadas'] = fichas_entidade.filter(tipo='DNV').exclude(status='Distribuida')
-
-
-        # LÓGICA NOVA PARA A ESTATÍSTICA DE 30 DIAS 
-        data_limite = timezone.now() - timedelta(days=30)
         
-        # Filtra fichas DNV/DO utilizadas/canceladas nos últimos 30 dias
-        dnv_recent_use = fichas_entidade.filter(
-            tipo='DNV',
-            data_desfecho__gte=data_limite  # __gte significa "maior ou igual a"
-        )
-        context['dnv_30days_count'] = dnv_recent_use.count()
+        context['fichas_do_finalizadas'] = fichas_entidade.filter(tipo='DO').exclude(status__in=['Distribuida', 'Disponível'])
+        context['fichas_dnv_finalizadas'] = fichas_entidade.filter(tipo='DNV').exclude(status__in=['Distribuida', 'Disponível'])
 
-        do_recent_use = fichas_entidade.filter(
-            tipo='DO',
-            data_desfecho__gte=data_limite  # __gte significa "maior ou igual a"
-        )
-        context['do_30days_count'] = do_recent_use.count()
-
-        # Fichas disponíveis para distribuição
-        context['fichas_disponiveis'] = Ficha.objects.filter(
-            status='Disponível'
-        ).order_by('numero')
-
-        # Outras entidades (para o dropdown de transferência)
+        # --- 5. DADOS PARA O MODAL DE TRANSFERÊNCIA ---
         context['outras_entidades'] = Entidade.objects.exclude(pk=self.object.pk).order_by('nome')
+
+        context['id_numero_map'] = {
+            str(f.id): f.numero for f in fichas_disponiveis
+        }
         
         return context
 
@@ -306,3 +344,57 @@ def dar_desfecho_em_lote(request):
         messages.error(request, f"Ocorreu um erro ao processar o lote: {e}")
 
     return redirect('entidade_detail', pk=entidade_id)
+
+
+@login_required
+def dashboard_view(request):
+    selected_dates = request.GET.getlist('datas')
+    base_queryset = Ficha.objects.all()
+
+    if selected_dates:
+        base_queryset = base_queryset.filter(data_recebimento__date__in=selected_dates)
+
+    # --- Cálculo das Estatísticas (sem alteração) ---
+    total_recebidas = base_queryset.count()
+    disponiveis_count = base_queryset.filter(status='Disponível').count()
+    distribuidas_count = base_queryset.filter(status='Distribuida').count()
+    finalizadas_count = base_queryset.filter(status__in=['Utilizada', 'Cancelada']).count()
+    
+    if total_recebidas > 0:
+        percentual_finalizadas = (finalizadas_count / total_recebidas) * 100
+    else:
+        percentual_finalizadas = 0
+
+    # --- NOVA LÓGICA PARA AGRUPAR DATAS ---
+    # 1. Busca todas as datas únicas de recebimento do banco
+    all_unique_dates = Ficha.objects.dates('data_recebimento', 'day', order='DESC')
+
+    # 2. Usa um dicionário para agrupar as datas por Mês/Ano
+    dates_by_month = defaultdict(list)
+    for date in all_unique_dates:
+        # Cria uma chave única para cada mês/ano, ex: "Setembro 2025"
+        month_key = date.strftime('%B de %Y').capitalize()
+        dates_by_month[month_key].append(date)
+
+    # 3. Transforma o dicionário na estrutura de lista que o template usará
+    grouped_dates = []
+    for month_year, dates in dates_by_month.items():
+        grouped_dates.append({
+            'month_year_display': month_year,
+            'dates': dates
+        })
+    # --- FIM DA NOVA LÓGICA ---
+
+    context = {
+        'total_recebidas': total_recebidas,
+        'disponiveis_count': disponiveis_count,
+        'distribuidas_count': distribuidas_count,
+        'percentual_finalizadas': percentual_finalizadas,
+        'grouped_dates': grouped_dates, # Enviamos as datas agrupadas
+        'selected_dates': selected_dates,
+    }
+
+    if 'HX-Request' in request.headers:
+        return render(request, 'controle_oficio/partials/dashboard_stats.html', context)
+    
+    return render(request, 'controle_oficio/dashboard.html', context)
