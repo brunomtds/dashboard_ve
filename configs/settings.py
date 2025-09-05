@@ -41,11 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'widget_tweaks',
+
     'dashboard',
     'ubs_consulta',
     'busca_docs',
     'quadro_equipe',
     'controle_oficio',
+    'accounts',
+    'administracao',
 ]
 
 MIDDLEWARE = [
@@ -56,10 +59,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dashboard.middleware.FirstAccessMiddleware',
+    'accounts.middleware.LoginRequiredMiddleware'
 ]
 
-ROOT_URLCONF = 'dashboard_ve.urls'
+ROOT_URLCONF = 'configs.urls'
 
 TEMPLATES = [
     {
@@ -77,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'dashboard_ve.wsgi.application'
+WSGI_APPLICATION = 'configs.wsgi.application'
 
 
 # Database
@@ -157,12 +160,14 @@ STATICFILES_DIRS = [BASE_DIR / 'static']  # Para arquivos estáticos em desenvol
 STATIC_ROOT = BASE_DIR / 'staticfiles'    # Para coletar arquivos em produção
 
 #Authentication redirects
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 PASSWORD_CHANGE_REDIRECT_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ADMIN_URL = '/admin/'

@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 from django.db import transaction
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 
 from .forms import EntidadeForm
@@ -137,7 +136,7 @@ class EntidadeDetailView(DetailView):
 # =========================
 # TRANSFERIR FICHAS EM LOTE
 # =========================
-@login_required
+
 @require_POST
 def transferir_fichas_em_lote(request):
     """
@@ -269,7 +268,6 @@ class BlocoDetailView(DetailView):
     context_object_name = 'bloco'
 
 
-@login_required
 @require_POST # Garante que esta view só aceita requisições POST
 def dar_desfecho_ficha(request, ficha_id):
     """
@@ -301,7 +299,7 @@ def dar_desfecho_ficha(request, ficha_id):
     messages.success(request, f"A ficha {ficha.numero} foi marcada como '{novo_status}'.")
     return redirect('entidade_detail', pk=entidade_id)
 
-@login_required
+
 @require_POST
 def dar_desfecho_em_lote(request):
     """
@@ -346,7 +344,6 @@ def dar_desfecho_em_lote(request):
     return redirect('entidade_detail', pk=entidade_id)
 
 
-@login_required
 def dashboard_view(request):
     selected_dates = request.GET.getlist('datas')
     base_queryset = Ficha.objects.all()

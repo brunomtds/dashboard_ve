@@ -2,7 +2,6 @@
 
 import psycopg2
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import JsonResponse
 import logging
@@ -11,7 +10,6 @@ from collections import defaultdict
 # Configurar logging para debug
 logger = logging.getLogger(__name__ )
 
-@login_required
 def consulta_cep_view(request):
     resultados = []
     mensagem_erro = None

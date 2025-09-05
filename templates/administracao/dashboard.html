@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Painel de Administração{% endblock %}
+
+{% block content %}
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Painel de Administração</h1>
+            <p class="text-xl text-gray-600">Gestão de Usuários e Solicitações do Sistema.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg"><svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg></div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Usuários Ativos</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ usuarios_ativos_count }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
+                <div class="p-3 bg-yellow-100 rounded-lg"><svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Solicitações Pendentes</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ solicitacoes_pendentes_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Ações de Gerenciamento</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <a href="{% url 'administracao:solicitacao_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <div class="card-icon">📩</div>
+                    <h3 class="text-lg font-semibold mb-3 text-blue-800">Gerenciar Solicitações</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Aprove ou rejeite os pedidos de acesso pendentes.</p>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="inline-flex items-center text-blue-600 text-sm font-medium">Ver Solicitações<svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></span>
+                </div>
+            </a>
+
+            <div class="dashboard-card dashboard-card-disabled bg-white p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <div class="card-icon">👥</div>
+                    <h3 class="text-lg font-semibold mb-3 text-gray-600">Gerenciar Usuários Ativos</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed">Visualize, edite e gerencie os usuários existentes no sistema.</p>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="inline-flex items-center text-gray-500 text-sm font-medium">Em breve</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
