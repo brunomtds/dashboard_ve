@@ -15,7 +15,11 @@ from .forms import EntidadeForm
 try:
     locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 except locale.Error:
-    locale.setlocale(locale.LC_ALL, 'portuguese') # Alternativa para Windows
+    try:
+        locale.setlocale(locale.LC_ALL, 'portuguese') # Alternativa para Windows
+    except locale.Error:
+        print("Atenção: Locale 'pt_BR.UTF-8' e 'portuguese' não encontrados. A formatação de datas pode ficar em inglês.")
+        pass
 
 from .models import Bloco, Entidade, Ficha
 
