@@ -32,3 +32,39 @@ class LoginRequiredMiddleware:
                 return redirect(login_url)
 
         return self.get_response(request)
+
+
+class FirstAccessMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+
+        # A lógica só se aplica a usuários autenticados.
+        if not request.user.is_authenticated:
+            return self.get_response(request)
+
+        # Verifica se o usuário tem o perfil e se o 'first_access' está ativo.
+        try:
+            profile = request.user.profile
+            if not profile.first_access:
+                return self.get_response(request)
+        except AttributeError:
+            return self.get_response(request)
+
+        # Se chegamos até aqui, o usuário está autenticado e com first_access=True.
+
+        # Define a lista de URLs que o usuário PODE acessar.
+        allowed_paths = [
+            reverse('accounts:password_change'),
+            reverse('accounts:password_change_done'),
+            reverse('accounts:logout'),
+            reverse('accounts:logout_perform'),
+        ]
+
+
+        # A verificação principal:
+        if request.path not in allowed_paths:
+            return redirect('accounts:password_change')
+
+        return self.get_response(request)
