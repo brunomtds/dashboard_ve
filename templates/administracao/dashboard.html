@@ -12,7 +12,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
             <div class="bg-white p-6 rounded-lg shadow-md flex items-center">
-                <div class="p-3 bg-green-100 rounded-lg"><svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path></svg></div>
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 18L18 20L22 16M12 15H8C6.13623 15 5.20435 15 4.46927 15.3045C3.48915 15.7105 2.71046 16.4892 2.30448 17.4693C2 18.2044 2 19.1362 2 21M15.5 3.29076C16.9659 3.88415 18 5.32131 18 7C18 8.67869 16.9659 10.1159 15.5 10.7092M13.5 7C13.5 9.20914 11.7091 11 9.5 11C7.29086 11 5.5 9.20914 5.5 7C5.5 4.79086 7.29086 3 9.5 3C11.7091 3 13.5 4.79086 13.5 7Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Usuários Ativos</p>
                     <p class="text-2xl font-semibold text-gray-900">{{ usuarios_ativos_count }}</p>
@@ -30,18 +34,6 @@
 
         <h2 class="text-2xl font-semibold text-gray-800 mb-6">Ações de Gerenciamento</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            <a href="{% url 'administracao:solicitacao_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md">
-                <div class="text-center">
-                    <div class="card-icon">📩</div>
-                    <h3 class="text-lg font-semibold mb-3 text-blue-800">Gerenciar Solicitações</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">Aprove ou rejeite os pedidos de acesso pendentes.</p>
-                </div>
-                <div class="mt-4 text-center">
-                    <span class="inline-flex items-center text-blue-600 text-sm font-medium">Ver Solicitações<svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg></span>
-                </div>
-            </a>
 
             <a href="{% url 'administracao:user_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md">
                 <div class="text-center">
@@ -55,6 +47,21 @@
                     </svg></span>
                 </div>
             </a>
+            
+            <a href="{% url 'administracao:solicitacao_list' %}" class="dashboard-card bg-white p-6 rounded-lg shadow-md">
+                <div class="text-center">
+                    <div class="card-icon">📩</div>
+                    <h3 class="text-lg font-semibold mb-3 text-blue-800">Gerenciar Solicitações</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">Aprove ou rejeite os pedidos de acesso pendentes.</p>
+                </div>
+                <div class="mt-4 text-center">
+                    <span class="inline-flex items-center text-blue-600 text-sm font-medium">Ver Solicitações<svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg></span>
+                </div>
+            </a>
+
+
         </div>
     </div>
 {% endblock %}
